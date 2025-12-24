@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>レジフロー検証ツール</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 15px; background: #f0f2f5; color: #333; overflow-x: hidden; }
+        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { font-size: 1rem; margin: 0 0 10px 0; color: #007bff; }
+        
+        /* 並び替えリストのスタイル */
+        #sortable-list { padding: 0; margin: 0; }
+        .sort-item {
+            display: flex; align-items: center;
+            background: #fff; border: 1px solid #ddd; padding: 15px;
+            margin-bottom: 10px; border-radius: 8px; font-weight: bold;
+            cursor: grab; touch-action: none; /* スマホのスクロールを防止 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        /* 掴んでいる時の見た目 */
+        .sortable-ghost { opacity: 0.4; background: #e2e6ea; border: 2px dashed #007bff; }
+        .sort-item::before { content: "☰"; margin-right: 15px; color: #ccc; font-size: 1.2rem; }
+
+        select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        #submit-btn { 
+            width: 100%; padding: 20px; background: #28a745; color: white; 
+            border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 0 #1e7e34; margin-top: 10px;
+        }
+        #submit-btn:active { transform: translateY(2px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>1. スタッフを選択</h2>
+        <select id="staff_name">
+            <option value="">-- 選択してください --</option>
+            <option value="スタッフA">スタッフA</option>
+            <option value="スタッフB">スタッフB</option>
+            <option value="スタッフC">スタッフC</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <h2>2. トーク順（長押しして移動）</h2>
+        <div id="sortable-list">
+            <div class="sort-item">商品をスキャン</div>
+            <div class="sort-item">合計金額を伝える</div>
+            <div class="sort-item">袋の有無を確認</div>
+            <div class="sort-item">既存カード保有の確認</div>
+            <div class="sort-item">2000円引きの特典告知</div>
+            <div class="sort-item">カード入会を提案</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>3. 結果</h2>
+        <select id="result">
+            <option value="成功">成功（カード発行）</option>
+            <option value="検討">検討（パンフ渡し）</option>
+            <option value="失敗">失敗</option>
+        </select>
+        <textarea id="memo" rows="2" style="margin-top:10px" placeholder="お客様の反応など（自由入力）"></textarea>
+    </div>
+
+    <button id="submit-btn">データを送信する</button>
+
+    <script>
+        // 設定されたSupabase情報
+        const SUPABASE_URL = 'https://odqtyzjdoavkgttetpow.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kcXR5empkb2F2a2d0dGV0cG93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NTIzODIsImV4cCI6MjA4MjEyODM4Mn0.j89TXSdFeqsycN3IX6S8L8CD3iAPBIMTY2FXiEBBYO4';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // SortableJSの初期化（ここが直感操作のキモです）
+        const el = document.getElementById('sortable-list');
+        Sortable.create(el, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            forceFallback: true, // スマホでも確実に動かすための設定
+            onStart: function() { if(window.navigator.vibrate) window.navigator.vibrate(10); } // 掴んだ時に少し振動（Android等）
+        });
+
+        // 送信処理
+        document.getElementById('submit-btn').onclick = async () => {
+            const staff = document.getElementById('staff_name').value;
+            if(!staff) return alert("スタッフ名を選択してください");
+
+            const items = [...document.querySelectorAll('.sort-item')];
+            const flowOrder = items.map(el => el.innerText.replace('☰', '').trim()).join(' > ');
+
+            try {
+                const { error } = await _supabase
+                    .from('card_verification')
+                    .insert([{ 
+                        staff_name: staff, 
+                        flow_order: flowOrder, 
+                        result: document.getElementById('result').value, 
+                        memo: document.getElementById('memo').value 
+                    }]);
+                if (error) throw error;
+                alert('送信完了！');
+                document.getElementById('memo').value = "";
+            } catch (err) {
+                alert('送信エラー: ' + err.message);
+            }
+        };
+    </script>
+</body>
+</html>
