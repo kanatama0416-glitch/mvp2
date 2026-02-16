@@ -1,0 +1,1920 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Calendar,
+  Star,
+  Users,
+  TrendingUp,
+  MessageCircle,
+  Search,
+  ChevronRight,
+  Sparkles,
+  Award,
+  Eye,
+  ThumbsUp,
+  X,
+  Check,
+  ExternalLink
+} from 'lucide-react';
+import { mockCommunityPosts } from '../../data/mockData';
+import { CommunityPost } from '../../types';
+import EventPostForm from './EventPostForm';
+import { createFavoriteEventPost } from '../../services/casePostService';
+import { useAuth } from '../../hooks/useAuth';
+import { saveUserParticipatingEvents, getUserParticipatingEvents } from '../../services/eventService';
+
+interface Event {
+  id: string;
+  name: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  status: 'upcoming' | 'active' | 'completed';
+  tags: string[];
+  totalPosts: number;
+  totalViews: number;
+  totalReactions: number;
+  stores: string[];
+  bestPractices: CommunityPost[];
+  successPatterns: string[];
+  keyPhrases: string[];
+  aiSummary: string;
+  essentialKnowledge?: {
+    overview: string;
+    mainCharacters: string[];
+    fanBase: string[];
+    precautions: string[];
+    servicePoints: string[];
+    officialSiteUrl?: string;
+  };
+}
+
+const mockEvents: Event[] = [
+  {
+    id: '1',
+    name: '呪術廻戦フェア',
+    description: '人気アニメ「呪術廻戦」とのコラボレーションイベント。限定グチE��販売とカード口コミ強化キャンペ�Eン',
+    startDate: new Date('2024-01-15'),
+    endDate: new Date('2024-02-15'),
+    status: 'active',
+    tags: ['#呪術廻戦', '#アニメコラチE, '#限定グチE��', '#カード口コチE],
+    totalPosts: 12,
+    totalViews: 456,
+    totalReactions: 89,
+    stores: ['渋谷庁E, '新宿庁E, '池袋庁E, '有楽町庁E],
+    bestPractices: mockCommunityPosts.slice(0, 2),
+    successPatterns: [
+      'キャラクター愛を共感�Eイントにした自然な声かけ',
+      'イベント限定特典を活用したカード提桁E,
+      'ファン忁E��を理解した丁寧な接客'
+    ],
+    keyPhrases: [
+      '「このキャラクター、人気ですよね�E�、E,
+      '「イベント期間中だけ�E特典があるんです、E,
+      '「次回�Eコラボでもお得に使えます、E
+    ],
+    aiSummary: 'アニメファンの忁E��を理解し、�E感を示すことで自然なカード口コミにつなげる成功パターンが多数報告されてぁE��す。特に限定感を演�Eする声かけが効果的です、E,
+    essentialKnowledge: {
+      overview: '「呪術廻戦」�E呪霊と呪術師の戦ぁE��描く人気アニメ作品。現代日本を�E台に、E��校生�E主人公が呪術師として成長してぁE��物語、E,
+      mainCharacters: [
+        '虎杖悠仁E���Eるく正義感�E強ぁE��人公',
+        '五条悟：最強の呪術師で人気No.1キャラクター',
+        '伏黒�E�E�クールで冷静な同級生'
+      ],
+      fanBase: [
+        '学生�E若年層�E�E0代、E0代�E�が中忁E,
+        'SNSで拡散力が強ぁE,
+        '女性ファンが多数を占める',
+        'キャラクターグチE��への購買意欲が高い'
+      ],
+      precautions: [
+        '人気グチE��は即完売するため、E��定感を強調',
+        'ファン忁E��を尊重し、作品への琁E��を示ぁE,
+        '初手でカード勧誘せず、会話から自然に導�E',
+        'キャラクター名や設定を間違えなぁE��ぁE��愁E
+      ],
+      servicePoints: [
+        'キャラ愛に共感してから会話に入めE,
+        '限定特典をカード提案�Eきっかけに',
+        '熱量を尊重し、E��度に営業皁E��ならなぁE,
+        '「次回�Eコラボでもお得」とぁE��メリチE��を提示'
+      ],
+      officialSiteUrl: 'https://jujutsukaisen.jp/'
+    }
+  },
+  {
+    id: '2',
+    name: 'MGAフェス2024',
+    description: 'マルイグループ年次イベント。�E店�E参加の大型キャンペ�Eン',
+    startDate: new Date('2024-02-01'),
+    endDate: new Date('2024-02-29'),
+    status: 'completed',
+    tags: ['#MGAフェス', '#全店�E', '#年次イベンチE, '#キャンペ�Eン'],
+    totalPosts: 28,
+    totalViews: 1234,
+    totalReactions: 267,
+    stores: ['全店�E'],
+    bestPractices: mockCommunityPosts.slice(1, 3),
+    successPatterns: [
+      'イベント特典を活用した積極皁E��声かけ',
+      'お客様�E購買意欲が高い時期を狙った提桁E,
+      'チ�Eム一丸となった接客体制'
+    ],
+    keyPhrases: [
+      '「フェス期間中の特別特典です、E,
+      '「今だけ�Eお得なキャンペ�Eンがあります、E,
+      '「年に一度の大チャンスです、E
+    ],
+    aiSummary: '全店�E参加の大型イベントでは、統一された声かけパターンと特典活用が�E功�E鍵となってぁE��す。お客様�E購買意欲が高まる時期を活用した積極皁E��アプローチが効果的です、E
+  },
+  {
+    id: '3',
+    name: 'バレンタインフェア',
+    description: 'バレンタインシーズンの特別企画。ギフト需要を狙ったカード口コミ強匁E,
+    startDate: new Date('2024-02-01'),
+    endDate: new Date('2024-02-14'),
+    status: 'active',
+    tags: ['#バレンタイン', '#ギフト', '#季節イベンチE, '#カチE�Eル'],
+    totalPosts: 8,
+    totalViews: 234,
+    totalReactions: 45,
+    stores: ['渋谷庁E, '新宿庁E, '池袋庁E],
+    bestPractices: [],
+    successPatterns: [
+      'ギフト需要を意識した�Eア提桁E,
+      '特別感を演�Eするカード特典の紹仁E,
+      'カチE�EルめE��族連れへの温かい接客'
+    ],
+    keyPhrases: [
+      '「�Eレゼントにぴったりの特典があります、E,
+      '「カードがあれば次回もお得にご利用ぁE��だけます、E,
+      '「バレンタイン限定�Eポイント還允E��ャンペ�Eン中です、E
+    ],
+    aiSummary: 'ギフト需要が高まるバレンタインシーズンは、カチE�EルめE��ァミリー層へのアプローチが効果的です。特別感を演�Eする声かけとペア提案が成功のポイントです、E
+  },
+  {
+    id: '4',
+    name: 'チェンソーマンコラチE,
+    description: '大人気アニメ「チェンソーマン」とのコラボイベント。限定グチE��と特典満輁E,
+    startDate: new Date('2024-01-20'),
+    endDate: new Date('2024-03-31'),
+    status: 'active',
+    tags: ['#チェンソーマン', '#アニメコラチE, '#限定グチE��', '#若年層'],
+    totalPosts: 15,
+    totalViews: 567,
+    totalReactions: 102,
+    stores: ['アニメイト渋谷庁E, 'アニメイト新宿庁E, 'アニメイト池袋庁E],
+    bestPractices: mockCommunityPosts.slice(0, 1),
+    successPatterns: [
+      'ファン忁E��を理解した共感的アプローチE,
+      'コラボ限定特典を活用した提桁E,
+      '作品への愛を尊重した丁寧な接客'
+    ],
+    keyPhrases: [
+      '「チェンソーマンファンですか�E�限定特典があるんです、E,
+      '「次のコラボイベントでもお得に使えますよ、E,
+      '「カード会員様だけ�E先行販売もあります、E
+    ],
+    aiSummary: 'アニメファンへのアプローチでは、作品への琁E��と共感が鍵となります。限定感と特別感を演�Eすることで自然なカード提案につながってぁE��す、E
+  },
+  {
+    id: '5',
+    name: 'スプリングセール2024',
+    description: '春の大型セールイベント。新生活応援キャンペ�Eン',
+    startDate: new Date('2024-03-01'),
+    endDate: new Date('2024-03-31'),
+    status: 'active',
+    tags: ['#スプリングセール', '#新生活', '#大型セール', '#全店�E'],
+    totalPosts: 22,
+    totalViews: 892,
+    totalReactions: 156,
+    stores: ['全店�E'],
+    bestPractices: mockCommunityPosts.slice(1, 3),
+    successPatterns: [
+      '新生活需要を捉えた積極皁E��提桁E,
+      'セール特典とカード特典の絁E��合わせ訴汁E,
+      '購買意欲の高いお客様への効果的なアプローチE
+    ],
+    keyPhrases: [
+      '「新生活の準備にカードがあると便利ですよ、E,
+      '「セール価格からさらにポイント還允E��あります、E,
+      '「今後�Eお買ぁE��でずっとお得になります、E
+    ],
+    aiSummary: '新生活シーズンは購買意欲が高まる時期です。セール特典とカード特典を絁E��合わせた提案が効果的で、E��期的なメリチE��を伝えることが�E功�Eポイントです、E
+  },
+  {
+    id: '6',
+    name: '推し�E子コラボフェア',
+    description: '話題沸騰中「推し�E子」とのコラボレーションイベンチE,
+    startDate: new Date('2024-02-15'),
+    endDate: new Date('2024-04-15'),
+    status: 'active',
+    tags: ['#推し�E孁E, '#アニメコラチE, '#若年層', '#SNS映ぁE],
+    totalPosts: 18,
+    totalViews: 678,
+    totalReactions: 134,
+    stores: ['アニメイト渋谷庁E, 'アニメイト新宿庁E, 'アニメイト池袋庁E, 'アニメイト秋葉原庁E],
+    bestPractices: [],
+    successPatterns: [
+      'SNS世代を意識したデジタル特典の訴汁E,
+      'キャラクター人気を活用した声かけ',
+      '写真撮影スポットでの自然な接客'
+    ],
+    keyPhrases: [
+      '「推し�E子ファンの方に大人気�E特典です、E,
+      '「カード限定�EチE��タル特典もありますよ、E,
+      '「SNSでシェアすると特典があります、E
+    ],
+    aiSummary: 'SNS世代が多い若年層イベントでは、デジタル特典めE��定感が重要です。�E真撮影などの体験と絁E��合わせた自然なアプローチが効果的です、E
+  },
+  {
+    id: '7',
+    name: 'ファミリーフェスタ',
+    description: '家族連れ向け�E大型イベント。親子で楽しめる企画満輁E,
+    startDate: new Date('2024-03-10'),
+    endDate: new Date('2024-03-24'),
+    status: 'active',
+    tags: ['#ファミリー', '#親孁E, '#キチE��', '#体験型'],
+    totalPosts: 10,
+    totalViews: 345,
+    totalReactions: 67,
+    stores: ['マルイ渋谷庁E, 'マルイ新宿庁E, 'マルイ有楽町庁E],
+    bestPractices: [],
+    successPatterns: [
+      '家族�E体�EメリチE��を訴求する提桁E,
+      '子育て世代向けの特典説昁E,
+      '安忁E��を与える丁寧な説昁E
+    ],
+    keyPhrases: [
+      '「お子様向け�E特典もご用意してぁE��す、E,
+      '「家族カードもお得に作れます、E,
+      '「次回�Eご来店時にも�Eイントが使えます、E
+    ],
+    aiSummary: 'ファミリー層には、家族�E体�EメリチE��と安忁E��の訴求が重要です。子育て世代向けの特典を丁寧に説明することで信頼を得られます、E
+  },
+  // 2023年のイベンチE  {
+    id: '8',
+    name: '鬼滁E�E刁E��ェア2023',
+    description: '社会現象となったアニメ「鬼滁E�E刁E��とのコラボイベンチE,
+    startDate: new Date('2023-10-01'),
+    endDate: new Date('2023-11-30'),
+    status: 'completed',
+    tags: ['#鬼滁E�E刁E, '#アニメコラチE, '#限定グチE��'],
+    totalPosts: 45,
+    totalViews: 2100,
+    totalReactions: 410,
+    stores: ['札幌庁E, '仙台庁E, '東京庁E, '名古屋庁E, '大阪庁E, '福岡庁E],
+    bestPractices: [],
+    successPatterns: ['キャラクター人気を活用した声かけ', '限定感の演�E', 'ファン忁E��の琁E��'],
+    keyPhrases: ['「推しキャラのグチE��残りわずかです、E, '「次回�E荷は未定です、E],
+    aiSummary: '鬼滁E�E刁E��ームを活用した成功事例が多数。限定感の訴求が効果的でした、E
+  },
+  {
+    id: '9',
+    name: '原神×大阪コラボフェスタ2023',
+    description: '世界皁E��気ゲーム「原神」とのコラボレーションイベンチE,
+    startDate: new Date('2023-07-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#原祁E, '#ゲームコラチE, '#大阪限宁E, '#限定グチE��'],
+    totalPosts: 32,
+    totalViews: 890,
+    totalReactions: 145,
+    stores: ['大阪梁E��庁E, '大阪難波庁E, '大阪天王寺庁E],
+    bestPractices: [],
+    successPatterns: ['ゲームファンへの共感アプローチE, 'キャラクターグチE��の限定感演�E'],
+    keyPhrases: ['「推しキャラのグチE��入荷しました、E, '「原神ファンの方に大人気です、E],
+    aiSummary: 'ゲームファン層への琁E��を示した提案が効果的でした、E
+  },
+  {
+    id: '10',
+    name: 'ホロライブVtuberハロウィンフェスタ2023',
+    description: '人気Vtuberグループ「�Eロライブ」とのハロウィンコラチE,
+    startDate: new Date('2023-10-01'),
+    endDate: new Date('2023-10-31'),
+    status: 'completed',
+    tags: ['#ホロライチE, '#Vtuber', '#ハロウィン', '#限定グチE��'],
+    totalPosts: 28,
+    totalViews: 756,
+    totalReactions: 132,
+    stores: ['全店�E'],
+    bestPractices: [],
+    successPatterns: ['Vtuberファンへの丁寧な対忁E, 'コラボ限定特典の訴汁E],
+    keyPhrases: ['「推し�E限定グチE��ありますよ、E, '「ハロウィン限定デザインです、E],
+    aiSummary: 'Vtuberファン層への琁E��を示した接客が�E功�Eポイント、E
+  },
+  {
+    id: '11',
+    name: '初音ミク×雪ミクフェア2023',
+    description: '北海道限定「雪ミク」とのコラボレーションイベンチE,
+    startDate: new Date('2023-12-01'),
+    endDate: new Date('2024-02-28'),
+    status: 'completed',
+    tags: ['#初音ミク', '#雪ミク', '#Vocaloid', '#北海道限宁E],
+    totalPosts: 19,
+    totalViews: 521,
+    totalReactions: 98,
+    stores: ['札幌庁E, '札幌スチE��プレイス庁E],
+    bestPractices: [],
+    successPatterns: ['地域限定キャラクターの活用', 'ボカロファンへの共愁E],
+    keyPhrases: ['「雪ミク限定グチE��です、E, '「北海道でしか買えません、E],
+    aiSummary: '地域限定キャラクターの特別感を活かした提案が成功してぁE��す、E
+  },
+  {
+    id: '12',
+    name: 'にじさんじ×名古屋コラボフェア2023',
+    description: '大人気Vtuberグループ「にじさんじ」とのコラボイベンチE,
+    startDate: new Date('2023-09-01'),
+    endDate: new Date('2023-09-30'),
+    status: 'completed',
+    tags: ['#にじさんじ', '#Vtuber', '#名古屋限宁E, '#限定グチE��'],
+    totalPosts: 24,
+    totalViews: 612,
+    totalReactions: 118,
+    stores: ['名古屋庁E, '名古屋栁E��E],
+    bestPractices: [],
+    successPatterns: ['Vtuberファンコミュニティへの琁E��', '限定感の演�E'],
+    keyPhrases: ['「推しライバ�EのグチE��あります、E, '「名古屋限定デザインです、E],
+    aiSummary: 'Vtuberファンの熱量を琁E��した提案が効果的でした、E
+  },
+  // 2022年のイベンチE  {
+    id: '13',
+    name: '東京リベンジャーズ×春フェア2022',
+    description: '人気アニメ「東京卍リベンジャーズ」とのコラボイベンチE,
+    startDate: new Date('2022-03-01'),
+    endDate: new Date('2022-04-30'),
+    status: 'completed',
+    tags: ['#東京リベンジャーズ', '#アニメコラチE, '#春', '#限定グチE��'],
+    totalPosts: 38,
+    totalViews: 1245,
+    totalReactions: 256,
+    stores: ['渋谷庁E, '新宿庁E, '池袋庁E, '有楽町庁E],
+    bestPractices: [],
+    successPatterns: ['アニメファンへの共感的アプローチE, 'キャラクター人気�E活用'],
+    keyPhrases: ['「�EイキーのグチE��入荷しました、E, '「限定デザインです、E],
+    aiSummary: '若年層に人気�Eアニメを活用した提案が成功してぁE��す、E
+  },
+  {
+    id: '14',
+    name: 'モンスターハンター×福岡コラチE022',
+    description: '大人気ゲーム「モンスターハンター」とのコラボイベンチE,
+    startDate: new Date('2022-05-01'),
+    endDate: new Date('2022-05-31'),
+    status: 'completed',
+    tags: ['#モンハン', '#ゲームコラチE, '#福岡限宁E, '#限定グチE��'],
+    totalPosts: 22,
+    totalViews: 689,
+    totalReactions: 134,
+    stores: ['福岡天神庁E, '福岡博多庁E],
+    bestPractices: [],
+    successPatterns: ['ゲームファンへの琁E��を示ぁE, 'ハンターへの共愁E],
+    keyPhrases: ['「モンハン好き�E方に人気です、E, '「限定武器グチE��あります、E],
+    aiSummary: 'ゲームファン層への琁E��を示した接客が効果的でした、E
+  },
+  {
+    id: '15',
+    name: 'ラブライチEサンシャイン!!×神奈巁E022',
+    description: '人気アニメ「ラブライチEサンシャイン!!」とのコラチE,
+    startDate: new Date('2022-07-15'),
+    endDate: new Date('2022-08-31'),
+    status: 'completed',
+    tags: ['#ラブライチE, '#アニメコラチE, '#神奈巁E, '#夁E],
+    totalPosts: 27,
+    totalViews: 743,
+    totalReactions: 156,
+    stores: ['横浜庁E, '川崎庁E],
+    bestPractices: [],
+    successPatterns: ['アニメ聖地巡礼客への対忁E, 'キャラクター愛�E尊重'],
+    keyPhrases: ['「推しメンのグチE��あります、E, '「限定缶バッジ入荷しました、E],
+    aiSummary: 'アニメファンの聖地巡礼需要を捉えた提案が成功、E
+  },
+  {
+    id: '16',
+    name: 'ポケモン×千葉オータムフェア2022',
+    description: '大人気キャラクター「�Eケモン」とのコラボイベンチE,
+    startDate: new Date('2022-10-01'),
+    endDate: new Date('2022-11-30'),
+    status: 'completed',
+    tags: ['#ポケモン', '#キャラクターコラチE, '#十E��', '#私E],
+    totalPosts: 18,
+    totalViews: 456,
+    totalReactions: 89,
+    stores: ['十E��庁E, '船橋庁E],
+    bestPractices: [],
+    successPatterns: ['幁E��E��年齢層へのアプローチE, 'ファミリー層への提桁E],
+    keyPhrases: ['「ピカチュウグチE��大人気です、E, '「お子様にも喜ばれます、E],
+    aiSummary: '全年齢層に人気�Eキャラクターを活用した提案が効果的でした、E
+  },
+  {
+    id: '17',
+    name: 'SPY×FAMILYコラチE022',
+    description: '大人気アニメ「SPY×FAMILY」とのコラボイベンチE,
+    startDate: new Date('2022-06-01'),
+    endDate: new Date('2022-07-31'),
+    status: 'completed',
+    tags: ['#SPY×FAMILY', '#アニメコラチE, '#限定グチE��'],
+    totalPosts: 52,
+    totalViews: 2340,
+    totalReactions: 489,
+    stores: ['全店�E'],
+    bestPractices: [],
+    successPatterns: ['家族層への訴汁E, 'キャラクターグチE��の限定感演�E'],
+    keyPhrases: ['「アーニャのグチE��大人気です、E],
+    aiSummary: '家族で楽しめるアニメとぁE��特性を活かした提案が成功、E
+  },
+  // 2024年追加イベント（様、E��都道府県�E�E  {
+    id: '18',
+    name: 'ウマ娘×埼玉スプリングフェア2024',
+    description: '大人気ゲーム「ウマ娘」とのコラボイベンチE,
+    startDate: new Date('2024-04-01'),
+    endDate: new Date('2024-04-30'),
+    status: 'upcoming',
+    tags: ['#ウマ威E, '#ゲームコラチE, '#埼玁E, '#春'],
+    totalPosts: 0,
+    totalViews: 0,
+    totalReactions: 0,
+    stores: ['大宮庁E, '川越庁E, '浦和庁E],
+    bestPractices: [],
+    successPatterns: [],
+    keyPhrases: [],
+    aiSummary: ''
+  },
+  {
+    id: '19',
+    name: 'Fate×京都桜フェスチE��バル2024',
+    description: 'アニメ・ゲーム「Fate」シリーズとのコラチE,
+    startDate: new Date('2024-03-20'),
+    endDate: new Date('2024-04-10'),
+    status: 'upcoming',
+    tags: ['#Fate', '#アニメコラチE, '#京都', '#春'],
+    totalPosts: 0,
+    totalViews: 0,
+    totalReactions: 0,
+    stores: ['京都庁E, '京都河原町庁E],
+    bestPractices: [],
+    successPatterns: [],
+    keyPhrases: [],
+    aiSummary: ''
+  },
+  {
+    id: '20',
+    name: 'ガンダム×庁E��サマ�Eフェア2023',
+    description: '人気アニメ「機動戦士ガンダム」とのコラボイベンチE,
+    startDate: new Date('2023-08-01'),
+    endDate: new Date('2023-08-15'),
+    status: 'completed',
+    tags: ['#ガンダム', '#アニメコラチE, '#庁E��', '#夁E],
+    totalPosts: 16,
+    totalViews: 432,
+    totalReactions: 87,
+    stores: ['庁E��庁E, '庁E��八丁堀庁E],
+    bestPractices: [],
+    successPatterns: ['幁E��E��世代のガンダムファンへの対忁E],
+    keyPhrases: ['「ガンプラ好き�E方に人気です、E, '「限定デザインです、E],
+    aiSummary: '幁E��E��世代に人気�Eアニメを活用した提案が成功しました、E
+  },
+  {
+    id: '21',
+    name: 'ブルーアーカイブ×仙台コラチE023',
+    description: '人気スマ�Eゲーム「ブルーアーカイブ」とのコラボイベンチE,
+    startDate: new Date('2023-08-06'),
+    endDate: new Date('2023-08-08'),
+    status: 'completed',
+    tags: ['#ブルアカ', '#ゲームコラチE, '#仙台', '#夁E],
+    totalPosts: 21,
+    totalViews: 578,
+    totalReactions: 112,
+    stores: ['仙台庁E, '仙台泉庁E],
+    bestPractices: [],
+    successPatterns: ['スマ�Eゲームファンへの琁E��', '推しキャラへの共愁E],
+    keyPhrases: ['「�E生、E��定グチE��あります、E, '「推し生徒�EグチE��入荷しました、E],
+    aiSummary: 'ゲームコミュニティへの琁E��を示した提案が好評でした、E
+  },
+  {
+    id: '22',
+    name: 'ワンピ�Eス×沖縁E��マ�Eフェア2023',
+    description: '大人気アニメ「ONE PIECE」とのコラボイベンチE,
+    startDate: new Date('2023-06-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#ワンピ�Eス', '#アニメコラチE, '#沖縁E, '#夁E],
+    totalPosts: 25,
+    totalViews: 692,
+    totalReactions: 141,
+    stores: ['那要E��E],
+    bestPractices: [],
+    successPatterns: ['幁E��E��世代への対忁E, 'キャラクター人気�E活用'],
+    keyPhrases: ['「麦わらの一味グチE��あります、E, '「限定デザインです、E],
+    aiSummary: '国民的アニメを活用した提案が成功してぁE��す、E
+  },
+  {
+    id: '23',
+    name: 'アイドルマスター×神戸フェア2022',
+    description: '人気ゲーム「アイドルマスター」シリーズとのコラチE,
+    startDate: new Date('2022-10-15'),
+    endDate: new Date('2022-10-31'),
+    status: 'completed',
+    tags: ['#アイマス', '#ゲームコラチE, '#神戸', '#私E],
+    totalPosts: 29,
+    totalViews: 812,
+    totalReactions: 167,
+    stores: ['神戸庁E, '神戸三宮庁E],
+    bestPractices: [],
+    successPatterns: ['プロチE��ーサーへの共愁E, '推しアイドルへの琁E��'],
+    keyPhrases: ['「担当アイドルのグチE��ありますよ、E, '「限定デザインです、E],
+    aiSummary: 'アイドルゲームファンへの琁E��を示した提案が成功してぁE��す、E
+  },
+  {
+    id: '24',
+    name: '艦これ×横浜コラボフェス2023',
+    description: '人気ゲーム「艦隊これくしょん」とのコラボイベンチE,
+    startDate: new Date('2023-02-01'),
+    endDate: new Date('2023-02-28'),
+    status: 'completed',
+    tags: ['#艦これ', '#ゲームコラチE, '#横流E, '#冬'],
+    totalPosts: 33,
+    totalViews: 945,
+    totalReactions: 189,
+    stores: ['横浜庁E],
+    bestPractices: [],
+    successPatterns: ['提督への丁寧な対忁E, '艦娘人気�E活用'],
+    keyPhrases: ['「提督、嫁艦のグチE��あります、E, '「限定グチE��です、E],
+    aiSummary: 'ゲームファンへの琁E��を示した接客が効果的でした、E
+  },
+  {
+    id: '25',
+    name: 'ちぁE��わ×静岡コラチE023',
+    description: '大人気キャラクター「ちぁE��わ」とのコラボイベンチE,
+    startDate: new Date('2023-07-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#ちぁE��めE, '#キャラクターコラチE, '#静岡', '#夁E],
+    totalPosts: 17,
+    totalViews: 467,
+    totalReactions: 91,
+    stores: ['静岡庁E],
+    bestPractices: [],
+    successPatterns: ['癒し系キャラの人気活用', '幁E��E��層へのアプローチE],
+    keyPhrases: ['「ちぁE��わグチE��入荷しました、E, '「限定デザインです、E],
+    aiSummary: '癒し系キャラクターの人気を活用した提案が成功、E
+  },
+  {
+    id: '26',
+    name: 'プロジェクトセカイ×長野ウィンターフェア2023',
+    description: '人気リズムゲーム「�Eロジェクトセカイ」とのコラチE,
+    startDate: new Date('2023-12-01'),
+    endDate: new Date('2024-03-31'),
+    status: 'completed',
+    tags: ['#プロセカ', '#ゲームコラチE, '#長釁E, '#冬'],
+    totalPosts: 22,
+    totalViews: 634,
+    totalReactions: 128,
+    stores: ['長野庁E],
+    bestPractices: [],
+    successPatterns: ['若年層への琁E��', 'キャラクター人気�E活用'],
+    keyPhrases: ['「推しキャラのグチE��あります、E, '「�Eロセカファンに人気です、E],
+    aiSummary: '音楽ゲームファンへの提案が成功してぁE��す、E
+  },
+  {
+    id: '27',
+    name: '崩壊スターレイル×��沢コラチE022',
+    description: '人気RPGゲーム「崩壁Eスターレイル」とのコラボイベンチE,
+    startDate: new Date('2022-11-01'),
+    endDate: new Date('2022-11-30'),
+    status: 'completed',
+    tags: ['#スターレイル', '#ゲームコラチE, '#金沢', '#私E],
+    totalPosts: 14,
+    totalViews: 389,
+    totalReactions: 76,
+    stores: ['金沢庁E],
+    bestPractices: [],
+    successPatterns: ['中国発ゲームファンへの対忁E, 'キャラクター人気�E活用'],
+    keyPhrases: ['「推しキャラのグチE��あります、E, '「限定デザインです、E],
+    aiSummary: 'グローバルゲームファンへの提案が成功、E
+  },
+  {
+    id: '28',
+    name: 'あんさんぶるスターズ×新潟フェア2023',
+    description: '人気アイドルゲーム「あんさん�Eるスターズ!」とのコラチE,
+    startDate: new Date('2023-10-01'),
+    endDate: new Date('2023-11-30'),
+    status: 'completed',
+    tags: ['#あんスタ', '#ゲームコラチE, '#新潁E, '#私E],
+    totalPosts: 19,
+    totalViews: 512,
+    totalReactions: 103,
+    stores: ['新潟庁E],
+    bestPractices: [],
+    successPatterns: ['アイドルゲームファンへの琁E��', '推しユニットへの共愁E],
+    keyPhrases: ['「推しユニット�EグチE��あります、E, '「担当�EグチE��入荷しました、E],
+    aiSummary: '女性向けアイドルゲームファンへの提案が効果的でした、E
+  },
+  {
+    id: '29',
+    name: 'すとぷり×岡山コラボフェスチE��バル2023',
+    description: '人気歌い手グループ「すとぷり」とのコラボイベンチE,
+    startDate: new Date('2023-08-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#すとぷめE, '#音楽', '#岡山', '#夁E],
+    totalPosts: 16,
+    totalViews: 445,
+    totalReactions: 88,
+    stores: ['岡山庁E],
+    bestPractices: [],
+    successPatterns: ['歌い手ファンへの琁E��', '若年層への対忁E],
+    keyPhrases: ['「すとぷりグチE��入荷しました、E, '「推しカラーのグチE��あります、E],
+    aiSummary: '音楽グループファンへの提案が好評でした、E
+  },
+  {
+    id: '30',
+    name: 'チE��スチE��ドワンダーランド×�E本2022',
+    description: '人気ゲーム「ツイスチE��ドワンダーランド」とのコラチE,
+    startDate: new Date('2022-09-01'),
+    endDate: new Date('2022-09-30'),
+    status: 'completed',
+    tags: ['#チE��スチE, '#ゲームコラチE, '#熊本', '#私E],
+    totalPosts: 31,
+    totalViews: 867,
+    totalReactions: 178,
+    stores: ['熊本庁E],
+    bestPractices: [],
+    successPatterns: ['女性向けゲームファンへの対忁E, '寮別グチE��の提桁E],
+    keyPhrases: ['「推し寮のグチE��あります、E, '「限定デザインです、E],
+    aiSummary: 'チE��ズニ�E系ゲームファンへの提案が成功、E
+  },
+  {
+    id: '31',
+    name: 'バ�EチャルYouTuber×群馬ウィンターフェア2023',
+    description: '人気VTuber事務所とのコラボレーションイベンチE,
+    startDate: new Date('2023-11-01'),
+    endDate: new Date('2024-01-31'),
+    status: 'completed',
+    tags: ['#VTuber', '#配信老E, '#群馬', '#冬'],
+    totalPosts: 13,
+    totalViews: 376,
+    totalReactions: 74,
+    stores: ['高崎庁E],
+    bestPractices: [],
+    successPatterns: ['VTuberファンへの琁E��', '配信斁E��への共愁E],
+    keyPhrases: ['「推し�E限定グチE��あります、E, '「�E信で紹介されたグチE��です、E],
+    aiSummary: 'VTuber斁E��への琁E��を示した提案が成功してぁE��す、E
+  },
+  {
+    id: '32',
+    name: 'スプラトゥーン3×栁E��フェア2024',
+    description: '人気ゲーム「スプラトゥーン3」とのコラボイベンチE,
+    startDate: new Date('2024-01-01'),
+    endDate: new Date('2024-02-29'),
+    status: 'active',
+    tags: ['#スプラトゥーン', '#任天堁E, '#栁E��', '#冬春'],
+    totalPosts: 11,
+    totalViews: 298,
+    totalReactions: 59,
+    stores: ['宁E�E宮庁E],
+    bestPractices: [],
+    successPatterns: ['任天堂ファンへの対忁E, 'ファミリー層への提桁E],
+    keyPhrases: ['「イカグチE��入荷しました、E, '「お子様に大人気です、E],
+    aiSummary: '任天堂ゲームファンへの提案が効果的、E
+  },
+  {
+    id: '33',
+    name: 'アークナイチE�茨城ウィンターフェア2023',
+    description: '人気タワーチE��フェンスゲーム「アークナイチE��とのコラチE,
+    startDate: new Date('2023-12-01'),
+    endDate: new Date('2023-12-31'),
+    status: 'completed',
+    tags: ['#アークナイチE, '#ゲームコラチE, '#茨埁E, '#年末'],
+    totalPosts: 26,
+    totalViews: 723,
+    totalReactions: 149,
+    stores: ['つく�E庁E],
+    bestPractices: [],
+    successPatterns: ['戦略ゲームファンへの対忁E, 'オペレーター人気�E活用'],
+    keyPhrases: ['「推しオペレーターのグチE��あります、E, '「限定デザインです、E],
+    aiSummary: 'タワーチE��フェンスゲームファンへの提案が成功してぁE��す、E
+  },
+  {
+    id: '34',
+    name: 'エヴァンゲリオン×山梨コラチE023',
+    description: '人気アニメ「新世紀エヴァンゲリオン」とのコラボイベンチE,
+    startDate: new Date('2023-07-15'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#エヴァンゲリオン', '#アニメコラチE, '#山梨', '#夁E],
+    totalPosts: 20,
+    totalViews: 567,
+    totalReactions: 115,
+    stores: ['甲府庁E],
+    bestPractices: [],
+    successPatterns: ['幁E��E��世代のファンへの対忁E, 'レトロアニメファンへの共愁E],
+    keyPhrases: ['「エヴァグチE��入荷しました、E, '「�E号機カラーの限定デザインです、E],
+    aiSummary: '世代を趁E��て愛されるアニメの活用が効果的でした、E
+  },
+  {
+    id: '35',
+    name: 'ラブライチEスーパ�Eスター!!×�E媁E023',
+    description: '人気アイドルアニメ「ラブライチEスーパ�Eスター!!」とのコラチE,
+    startDate: new Date('2023-11-01'),
+    endDate: new Date('2023-12-31'),
+    status: 'completed',
+    tags: ['#ラブライチE, '#アニメコラチE, '#愛媁E, '#冬'],
+    totalPosts: 15,
+    totalViews: 423,
+    totalReactions: 85,
+    stores: ['松山庁E],
+    bestPractices: [],
+    successPatterns: ['アイドルアニメファンへの琁E��', '推しメンへの共愁E],
+    keyPhrases: ['「推しメンのグチE��あります、E, '「限定缶バッジ入荷しました、E],
+    aiSummary: 'アイドルアニメファンへの提案が成功、E
+  },
+  {
+    id: '36',
+    name: 'バンドリ!×香川コラボフェア2022',
+    description: '人気音楽ゲーム「BanG Dream!」とのコラボイベンチE,
+    startDate: new Date('2022-10-01'),
+    endDate: new Date('2022-10-31'),
+    status: 'completed',
+    tags: ['#バンドリ', '#ゲームコラチE, '#香巁E, '#私E],
+    totalPosts: 18,
+    totalViews: 498,
+    totalReactions: 97,
+    stores: ['高松庁E],
+    bestPractices: [],
+    successPatterns: ['音楽ゲームファンへの琁E��', 'バンド別グチE��の提桁E],
+    keyPhrases: ['「推しバンド�EグチE��あります、E, '「ライブ会場限定デザインです、E],
+    aiSummary: '音楽ゲームファンへの提案が好評でした、E
+  },
+  {
+    id: '37',
+    name: 'ぁE��の☁E�Eリンスさまっ♪×徳島2023',
+    description: '人気女性向けゲーム「うた�Eリ」とのコラボイベンチE,
+    startDate: new Date('2023-08-12'),
+    endDate: new Date('2023-08-15'),
+    status: 'completed',
+    tags: ['#ぁE��プリ', '#ゲームコラチE, '#徳島', '#夁E],
+    totalPosts: 17,
+    totalViews: 487,
+    totalReactions: 94,
+    stores: ['徳島庁E],
+    bestPractices: [],
+    successPatterns: ['女性向けゲームファンへの対忁E, 'アイドル別グチE��の提桁E],
+    keyPhrases: ['「推しアイドルのグチE��あります、E, '「限定デザインです、E],
+    aiSummary: '女性向けアイドルゲームファンへの提案が成功、E
+  },
+  {
+    id: '38',
+    name: 'FGO×高知サマ�Eフェア2023',
+    description: '人気ゲーム「Fate/Grand Order」とのコラボイベンチE,
+    startDate: new Date('2023-08-09'),
+    endDate: new Date('2023-08-12'),
+    status: 'completed',
+    tags: ['#FGO', '#ゲームコラチE, '#高知', '#夁E],
+    totalPosts: 16,
+    totalViews: 454,
+    totalReactions: 89,
+    stores: ['高知庁E],
+    bestPractices: [],
+    successPatterns: ['マスターへの丁寧な対忁E, 'サーヴァント人気�E活用'],
+    keyPhrases: ['「推しサーヴァント�EグチE��あります、E, '「�Eスターに人気です、E],
+    aiSummary: 'RPGゲームファンへの提案が効果的でした、E
+  },
+  {
+    id: '39',
+    name: 'ヒ�Eノシスマイク×佐賀コラチE023',
+    description: '人気音楽プロジェクト「ヒプノシスマイク」とのコラチE,
+    startDate: new Date('2023-11-01'),
+    endDate: new Date('2023-11-05'),
+    status: 'completed',
+    tags: ['#ヒ�Eマイ', '#音楽コンチE��チE, '#佐賀', '#私E],
+    totalPosts: 14,
+    totalViews: 398,
+    totalReactions: 78,
+    stores: ['佐賀庁E],
+    bestPractices: [],
+    successPatterns: ['女性向けコンチE��チE��ァンへの琁E��', 'チE��ビジョン別の提桁E],
+    keyPhrases: ['「推しディビジョンのグチE��あります、E, '「限定デザインです、E],
+    aiSummary: '音楽プロジェクトファンへの提案が成功しました、E
+  },
+  {
+    id: '40',
+    name: '刀剣乱舞×長崎ウィンターフェア2023',
+    description: '人気ゲーム「�E剣乱舞」とのコラボイベンチE,
+    startDate: new Date('2023-01-22'),
+    endDate: new Date('2023-02-05'),
+    status: 'completed',
+    tags: ['#刀剣乱舁E, '#ゲームコラチE, '#長崁E, '#冬'],
+    totalPosts: 23,
+    totalViews: 645,
+    totalReactions: 132,
+    stores: ['長崎庁E],
+    bestPractices: [],
+    successPatterns: ['女性向けゲームファンへの対忁E, '推し�E剣への琁E��'],
+    keyPhrases: ['「推し�EのグチE��あります、E, '「審神老E��人気です、E],
+    aiSummary: '歴史系ゲームファンへの提案が成功、E
+  },
+  {
+    id: '41',
+    name: 'グランブルーファンタジー×大刁E023',
+    description: '人気RPGゲーム「グランブルーファンタジー」とのコラチE,
+    startDate: new Date('2023-10-01'),
+    endDate: new Date('2023-12-31'),
+    status: 'completed',
+    tags: ['#グラブル', '#ゲームコラチE, '#大刁E, '#秋�E'],
+    totalPosts: 19,
+    totalViews: 534,
+    totalReactions: 107,
+    stores: ['大刁E��E],
+    bestPractices: [],
+    successPatterns: ['RPGゲームファンへの琁E��', 'キャラクター人気�E活用'],
+    keyPhrases: ['「推しキャラのグチE��あります、E, '「騎空士に人気です、E],
+    aiSummary: 'ソーシャルゲームファンへの提案が効果的でした、E
+  },
+  {
+    id: '42',
+    name: 'とあるシリーズ×宮崎サマ�Eフェア2023',
+    description: '人気ライトノベル「とある」シリーズとのコラチE,
+    startDate: new Date('2023-06-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#とあるシリーズ', '#ライトノベル', '#宮崁E, '#夁E],
+    totalPosts: 17,
+    totalViews: 478,
+    totalReactions: 95,
+    stores: ['宮崎庁E],
+    bestPractices: [],
+    successPatterns: ['ラノ�Eファンへの琁E��', 'キャラクター人気�E活用'],
+    keyPhrases: ['「御坂美琴グチE��入荷しました、E, '「限定デザインです、E],
+    aiSummary: 'ライトノベルファンへの提案が成功しました、E
+  },
+  {
+    id: '43',
+    name: 'アイカチE×鹿児島コラボフェア2022',
+    description: '人気アイドルゲーム「アイカチE」とのコラボイベンチE,
+    startDate: new Date('2022-11-01'),
+    endDate: new Date('2022-11-30'),
+    status: 'completed',
+    tags: ['#アイカチE, '#ゲームコラチE, '#鹿児島', '#私E],
+    totalPosts: 15,
+    totalViews: 421,
+    totalReactions: 83,
+    stores: ['鹿児島庁E],
+    bestPractices: [],
+    successPatterns: ['子供向けコンチE��チE�E家族提桁E, 'ファミリー層への対忁E],
+    keyPhrases: ['「お子様に大人気です、E, '「アイドル活動グチE��あります、E],
+    aiSummary: 'キチE��向けゲームの家族提案が成功、E
+  },
+  {
+    id: '44',
+    name: 'ヴァイオレチE��・エヴァーガーチE��×青森2023',
+    description: '感動アニメ「ヴァイオレチE��・エヴァーガーチE��」とのコラチE,
+    startDate: new Date('2023-08-02'),
+    endDate: new Date('2023-08-07'),
+    status: 'completed',
+    tags: ['#ヴァイオレチE��', '#アニメコラチE, '#青森', '#夁E],
+    totalPosts: 21,
+    totalViews: 589,
+    totalReactions: 118,
+    stores: ['青森庁E],
+    bestPractices: [],
+    successPatterns: ['感動系アニメファンへの丁寧な対忁E, '作品の世界観への琁E��'],
+    keyPhrases: ['「ヴァイオレチE��グチE��入荷しました、E, '「美しぁE��ザインです、E],
+    aiSummary: '感動系アニメファンへの提案が好評でした、E
+  },
+  {
+    id: '45',
+    name: 'バ�EチャルさんはみてぁE��×岩扁E023',
+    description: 'VTuber番絁E��バーチャルさんはみてぁE��」とのコラチE,
+    startDate: new Date('2023-09-01'),
+    endDate: new Date('2023-10-31'),
+    status: 'completed',
+    tags: ['#VTuber', '#バ�Eチャル', '#岩扁E, '#私E],
+    totalPosts: 13,
+    totalViews: 367,
+    totalReactions: 72,
+    stores: ['盛岡庁E],
+    bestPractices: [],
+    successPatterns: ['VTuberファンへの琁E��', 'バ�Eチャル斁E��への共愁E],
+    keyPhrases: ['「推しVTuberのグチE��あります、E, '「限定デザインです、E],
+    aiSummary: 'VTuberコンチE��チE��ァンへの提案が成功、E
+  },
+  {
+    id: '46',
+    name: 'Re:ゼロから始める異世界生活×秋田2023',
+    description: '人気アニメ「Re:ゼロ」とのコラボイベンチE,
+    startDate: new Date('2023-08-03'),
+    endDate: new Date('2023-08-06'),
+    status: 'completed',
+    tags: ['#リゼロ', '#アニメコラチE, '#秋田', '#夁E],
+    totalPosts: 16,
+    totalViews: 445,
+    totalReactions: 88,
+    stores: ['秋田庁E],
+    bestPractices: [],
+    successPatterns: ['異世界系アニメファンへの琁E��', 'キャラクター人気�E活用'],
+    keyPhrases: ['「レムのグチE��入荷しました、E, '「エミリアグチE��も人気です、E],
+    aiSummary: '異世界アニメファンへの提案が効果的でした、E
+  },
+  {
+    id: '47',
+    name: 'アズールレーン×山形コラチE023',
+    description: '人気ゲーム「アズールレーン」とのコラボイベンチE,
+    startDate: new Date('2023-06-01'),
+    endDate: new Date('2023-07-31'),
+    status: 'completed',
+    tags: ['#アズレン', '#ゲームコラチE, '#山形', '#夁E],
+    totalPosts: 18,
+    totalViews: 501,
+    totalReactions: 101,
+    stores: ['山形庁E],
+    bestPractices: [],
+    successPatterns: ['ミリタリーゲームファンへの対忁E, '艦船擬人化人気�E活用'],
+    keyPhrases: ['「推しKAN-SENのグチE��あります、E, '「指揮官に人気です、E],
+    aiSummary: 'ミリタリー系ゲームファンへの提案が成功しました、E
+  },
+  {
+    id: '48',
+    name: 'プリキュアシリーズ×福島フェア2023',
+    description: '人気アニメ「�Eリキュア」シリーズとのコラチE,
+    startDate: new Date('2023-07-01'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#プリキュア', '#アニメコラチE, '#福島', '#夁E],
+    totalPosts: 17,
+    totalViews: 473,
+    totalReactions: 94,
+    stores: ['福島庁E, '郡山庁E],
+    bestPractices: [],
+    successPatterns: ['ファミリー層への提桁E, '子供向けコンチE��チE�E家族対忁E],
+    keyPhrases: ['「お子様に大人気�EプリキュアグチE��です、E, '「親子で楽しめます、E],
+    aiSummary: 'キチE��向けアニメの家族提案が効果的でした、E
+  },
+  {
+    id: '49',
+    name: 'ドラゴンクエスト×三重コラチE023',
+    description: '国民的RPG「ドラゴンクエスト」とのコラボイベンチE,
+    startDate: new Date('2023-01-01'),
+    endDate: new Date('2023-03-31'),
+    status: 'completed',
+    tags: ['#ドラクエ', '#ゲームコラチE, '#三重', '#新春'],
+    totalPosts: 24,
+    totalViews: 678,
+    totalReactions: 136,
+    stores: ['四日市庁E, '津庁E],
+    bestPractices: [],
+    successPatterns: ['幁E��E��世代への対忁E, '国民的ゲームの活用'],
+    keyPhrases: ['「スライムグチE��入荷しました、E, '「ドラクエファンに大人気です、E],
+    aiSummary: '国民的RPGを活用した提案が成功しました、E
+  },
+  {
+    id: '50',
+    name: 'けいおん!×滋賀サマ�EフェスチE��バル2023',
+    description: '人気アニメ「けぁE��めE」�E聖地滋賀でのコラボイベンチE,
+    startDate: new Date('2023-07-15'),
+    endDate: new Date('2023-08-31'),
+    status: 'completed',
+    tags: ['#けいおん', '#アニメコラチE, '#滋賀', '#夁E],
+    totalPosts: 16,
+    totalViews: 448,
+    totalReactions: 89,
+    stores: ['大津庁E, '草津庁E],
+    bestPractices: [],
+    successPatterns: ['聖地巡礼客への対忁E, 'アニメファンへの琁E��'],
+    keyPhrases: ['「聖地巡礼の思い出にグチE��をどぁE��、E, '「放課後ティータイムグチE��あります、E],
+    aiSummary: '聖地巡礼需要を活用した提案が効果的でした、E
+  }
+];
+
+type ViewMode = 'list' | 'detail';
+type ViewModeWithCreate = 'list' | 'detail' | 'create';
+type FilterStatus = 'all' | 'active' | 'completed' | 'upcoming' | 'my-events';
+
+export default function Events() {
+  const { user, updateUser } = useAuth();
+  const [viewMode, setViewMode] = useState<ViewModeWithCreate>('list');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [showEventSelectionModal, setShowEventSelectionModal] = useState(false);
+  const [selectedParticipatingEvents, setSelectedParticipatingEvents] = useState<string[]>([]);
+  const [selectedArea, setSelectedArea] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'knowledge' | 'patterns' | 'phrases'>('knowledge');
+  const [showAllEventsModal, setShowAllEventsModal] = useState(false);
+  const [allEventsFilterArea, setAllEventsFilterArea] = useState<string>('all');
+  const [allEventsFilterYear, setAllEventsFilterYear] = useState<string>('all');
+
+  // ユーザーの参加イベントを初期匁E  useEffect(() => {
+    const loadParticipatingEvents = async () => {
+      if (user?.id) {
+        const events = await getUserParticipatingEvents(user.id);
+        setSelectedParticipatingEvents(events);
+      }
+    };
+    loadParticipatingEvents();
+  }, [user?.id]);
+
+  const filteredEvents = mockEvents.filter(event => {
+    const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         event.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesFilter = filterStatus === 'all' ||
+                         event.status === filterStatus ||
+                         (filterStatus === 'my-events' && selectedParticipatingEvents.includes(event.id));
+    return matchesSearch && matchesFilter;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-success-green';
+      case 'completed': return 'bg-gray-100 text-gray-600';
+      case 'upcoming': return 'bg-blue-100 text-sky-blue';
+      default: return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'active': return '開催中';
+      case 'completed': return '終亁E;
+      case 'upcoming': return '開催予宁E;
+      default: return '不�E';
+    }
+  };
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setViewMode('detail');
+  };
+
+  const handleBackToList = () => {
+    setSelectedEvent(null);
+    setViewMode('list');
+  };
+
+  const handleCreatePost = async (postData: any) => {\n    try {\n      if (!user?.id) {\n        alert('���O�C�����K�v�ł�');\n        return;\n      }\n      const ok = await createFavoriteEventPost({\n        authorId: user.id,\n        eventId: postData.eventId,\n        title: postData.title,\n        situation: postData.situation,\n        innovation: postData.innovation,\n        result: postData.result,\n        learning: postData.learning,\n        tags: postData.tags || [],\n      });\n      if (ok) {\n        alert('�C�x���g�����ۑ����܂���');\n        setViewMode('list');\n      } else {\n        alert('�ۑ��Ɏ��s���܂����B���Ԃ������čēx���������������B');\n      }\n    } catch (e) {\n      console.error('Create favorite event post failed:', e);\n      alert('�ۑ����ɃG���[���������܂���');\n    }\n  };
+
+  const handleToggleEventParticipation = (eventId: string) => {
+    setSelectedParticipatingEvents(prev =>
+      prev.includes(eventId)
+        ? prev.filter(id => id !== eventId)
+        : [...prev, eventId]
+    );
+  };
+
+  const handleSaveParticipatingEvents = async () => {
+    if (!user?.id) {
+      console.error('ユーザーIDがありません');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('💾 保存�E琁E��姁E- ユーザーID:', user.id, 'イベンチED:', selectedParticipatingEvents);
+
+      // チE�Eタベ�Eスに保孁E      const success = await saveUserParticipatingEvents(user.id, selectedParticipatingEvents);
+
+      if (success) {
+        console.log('✁E保存�E劁E- チE�Eタベ�Eスから再読み込み中...');
+
+        // チE�Eタベ�Eスから最新の参加イベントを再読み込み
+        const updatedEvents = await getUserParticipatingEvents(user.id);
+        console.log('📥 再読み込み完亁E', updatedEvents);
+        setSelectedParticipatingEvents(updatedEvents);
+
+        setShowEventSelectionModal(false);
+        alert('参加イベントを保存しました');
+      } else {
+        console.error('❁E参加イベント�E保存に失敗しました');
+        alert('保存に失敗しました。もぁE��度お試しください、E);
+      }
+    } catch (error) {
+      console.error('❁E参加イベント保存エラー:', error);
+      alert('保存中にエラーが発生しました');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 2024年に開催されたイベントを「開催中イベント」として定義
+  const activeEvents = mockEvents.filter(e => {
+    const year2024Match = e.startDate.getFullYear() === 2024 || e.endDate.getFullYear() === 2024;
+    if (selectedArea === 'all') return year2024Match;
+
+    // 地方別エリアフィルタリング
+    const regionalKeywords: { [key: string]: string[] } = {
+      '北海遁E: ['北海遁E, '札幁E],
+      '東匁E: ['青森', '岩扁E, '宮埁E, '秋田', '山形', '福島', '仙台'],
+      '関東': ['東京', '神奈巁E, '埼玁E, '十E��', '茨埁E, '栁E��', '群馬', '渋谷', '新宿', '池袁E, '有楽町', '秋葉厁E, '横流E, '大宮'],
+      '中部': ['新潁E, '富山', '石巁E, '福亁E, '山梨', '長釁E, '岐�E', '静岡', '愛知', '名古屁E],
+      '近畿': ['三重', '滋賀', '京都', '大阪', '兵庫', '奈良', '和歌山', '梁E��', '神戸'],
+      '中国': ['鳥叁E, '島根', '岡山', '庁E��', '山口'],
+      '四国': ['徳島', '香巁E, '愛媁E, '高知'],
+      '九巁E: ['福岡', '佐賀', '長崁E, '熊本', '大刁E, '宮崁E, '鹿児島', '沖縁E, '博夁E, '天祁E]
+    };
+
+    const keywords = regionalKeywords[selectedArea] || [];
+    const matchesArea = e.stores.some(store =>
+      keywords.some(keyword => store.includes(keyword))
+    ) || e.stores.includes('全店�E');
+
+    return year2024Match && matchesArea;
+  });
+
+  if (viewMode === 'create') {
+    return (
+      <EventPostForm 
+        onSubmit={handleCreatePost}
+        onCancel={handleBackToList}
+        events={mockEvents.map(e => ({ id: e.id, name: e.name, status: e.status }))}
+      />
+    );
+  }
+
+  if (viewMode === 'detail' && selectedEvent) {
+    return (
+      <div className="space-y-6">
+        {/* ヘッダー */}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleBackToList}
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900">{selectedEvent.name}</h1>
+              <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(selectedEvent.status)}`}>
+                {getStatusLabel(selectedEvent.status)}
+              </span>
+            </div>
+            <p className="text-gray-600">{selectedEvent.description}</p>
+          </div>
+        </div>
+
+        {/* タブナビゲーション */}
+        <div className="bg-white rounded-xl border border-gray-200 p-1">
+          <div className="grid grid-cols-4 gap-2">
+            <button
+              onClick={() => setActiveDetailTab('knowledge')}
+              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
+                activeDetailTab === 'knowledge'
+                  ? 'bg-vivid-red text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              💫 ファンの楽しみを理解するための基礎情報
+            </button>
+            <button
+              onClick={() => setActiveDetailTab('overview')}
+              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
+                activeDetailTab === 'overview'
+                  ? 'bg-vivid-red text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              📊 概要E            </button>
+            <button
+              onClick={() => setActiveDetailTab('patterns')}
+              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
+                activeDetailTab === 'patterns'
+                  ? 'bg-vivid-red text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              ✨ 成功パターン
+            </button>
+            <button
+              onClick={() => setActiveDetailTab('phrases')}
+              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
+                activeDetailTab === 'phrases'
+                  ? 'bg-vivid-red text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              💬 フレーズ雁E            </button>
+          </div>
+        </div>
+
+        {/* 忁E��知識タチE*/}
+        {activeDetailTab === 'knowledge' && selectedEvent.essentialKnowledge && (
+          <div className="space-y-4">
+            {/* 作品概要E*/}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                <span className="text-2xl">📖</span>
+                <span>作品概要E/span>
+              </h3>
+              <p className="text-gray-700 leading-relaxed mb-4">{selectedEvent.essentialKnowledge.overview}</p>
+
+              {/* 公式サイトリンク */}
+              {selectedEvent.essentialKnowledge.officialSiteUrl && (
+                <a
+                  href={selectedEvent.essentialKnowledge.officialSiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span className="font-medium">公式サイトを見る</span>
+                </a>
+              )}
+            </div>
+
+            {/* 主要キャラクター */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <span className="text-2xl">👥</span>
+                <span>主要キャラクターTOP3</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {selectedEvent.essentialKnowledge.mainCharacters.map((character, index) => (
+                  <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                        {index + 1}
+                      </div>
+                      <p className="text-gray-800 font-medium">{character}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ファン層の特徴 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <span className="text-2xl">🎯</span>
+                <span>ファン層の特徴</span>
+              </h3>
+              <ul className="space-y-3">
+                {selectedEvent.essentialKnowledge.fanBase.map((item, index) => (
+                  <li key={index} className="flex items-start space-x-3">
+                    <span className="text-sky-blue mt-1">◁E/span>
+                    <span className="text-gray-700 flex-1">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 会話のヒンチE*/}
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <span className="text-2xl">💬</span>
+                <span>ファンと楽しく話すため�EヒンチE/span>
+              </h3>
+              <ul className="space-y-3">
+                {selectedEvent.essentialKnowledge.precautions.map((item, index) => (
+                  <li key={index} className="flex items-start space-x-3">
+                    <span className="text-pink-500 mt-1">💡</span>
+                    <span className="text-gray-800 flex-1">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 会話のきっかけポインチE*/}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <span className="text-2xl">🌟</span>
+                <span>会話のきっかけポインチE/span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {selectedEvent.essentialKnowledge.servicePoints.map((point, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-blue-200 shadow-sm">
+                    <span className="text-blue-500 text-xl">💬</span>
+                    <span className="text-gray-800 flex-1">{point}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 概要タチE*/}
+        {activeDetailTab === 'overview' && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <MessageCircle className="w-8 h-8 text-sky-blue mx-auto mb-2" />
+                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalPosts}</div>
+                <div className="text-sm text-gray-600">投稿事侁E/div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <Eye className="w-8 h-8 text-success-green mx-auto mb-2" />
+                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalViews}</div>
+                <div className="text-sm text-gray-600">総閲覧数</div>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <ThumbsUp className="w-8 h-8 text-sunshine-yellow mx-auto mb-2" />
+                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalReactions}</div>
+                <div className="text-sm text-gray-600">総リアクション</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                <div className="text-xl font-bold text-gray-900">{selectedEvent.stores.length}</div>
+                <div className="text-sm text-gray-600">参加店�E</div>
+              </div>
+            </div>
+
+            {/* AI要紁E*/}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <Sparkles className="w-5 h-5 text-sky-blue mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-sky-blue mb-2">AI刁E��サマリー</h3>
+                  <p className="text-blue-700">{selectedEvent.aiSummary}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 参加店�E */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <Users className="w-5 h-5 text-purple-600" />
+                <span>参加店�E</span>
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedEvent.stores.map((store, index) => (
+                  <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
+                    {store}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 成功パターンタチE*/}
+        {activeDetailTab === 'patterns' && selectedEvent.successPatterns.length > 0 && (
+          <div className="space-y-6">
+            {/* 成功パターンTOP3 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <Award className="w-5 h-5 text-sunshine-yellow" />
+                <h3 className="text-lg font-semibold text-gray-900">成功パターンTOP3</h3>
+              </div>
+              <div className="space-y-3">
+                {selectedEvent.successPatterns.map((pattern, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div className="w-8 h-8 bg-sunshine-yellow text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <p className="text-gray-800 flex-1 text-base">{pattern}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 実際の事例投稿 */}
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <MessageCircle className="w-5 h-5 text-sky-blue" />
+                <h3 className="text-lg font-semibold text-gray-900">みんなの投稿事侁E/h3>
+              </div>
+              {/* 今週の人気事例TOP3�E�イベント�E�E�E*/}
+              <div className="bg-gradient-to-r from-yellow-50 to-red-50 rounded-xl p-6 border border-yellow-200 mb-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Award className="w-5 h-5 text-sunshine-yellow" />
+                  <h3 className="text-lg font-semibold text-gray-900">今週の人気事例TOP3</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {mockCommunityPosts
+                    .filter(post => post.eventId === selectedEvent.id)
+                    .sort((a, b) => {
+                      const aScore = a.reactions.like + a.reactions.empathy + a.reactions.helpful;
+                      const bScore = b.reactions.like + b.reactions.empathy + b.reactions.helpful;
+                      return bScore - aScore;
+                    })
+                    .slice(0, 3)
+                    .map((post, index) => (
+                      <div key={post.id} className="bg-white rounded-lg p-4 border border-yellow-200">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                            index === 0 ? 'bg-sunshine-yellow' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{post.author.department}</span>
+                        </div>
+                        <h4 className="font-medium text-gray-900 text-sm mb-2 line-clamp-2">{post.title}</h4>
+                        <div className="flex items-center space-x-3 text-xs text-gray-500">
+                          <span>{post.reactions.like + post.reactions.empathy + post.reactions.helpful} リアクション</span>
+                          <span>{post.views} 閲覧</span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {mockCommunityPosts.filter(post => post.eventId === selectedEvent.id).map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-start space-x-4 mb-4">
+                      <img
+                        src={post.author.avatar}
+                        alt={post.author.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{post.title}</h4>
+                            <p className="text-sm text-gray-600">{post.author.name} · {post.author.department}</p>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {post.createdAt.toLocaleDateString('ja-JP')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 mb-4">
+                      <div>
+                        <span className="text-xs font-semibold text-purple-600 uppercase">状況E/span>
+                        <p className="text-gray-700 mt-1">{post.situation}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-blue-600 uppercase">工夫したこと</span>
+                        <p className="text-gray-700 mt-1">{post.innovation}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-green-600 uppercase">結果</span>
+                        <p className="text-gray-700 mt-1">{post.result}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.map((tag, index) => (
+                          <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center space-x-1">
+                          <ThumbsUp className="w-4 h-4" />
+                          <span>{post.reactions.like}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <Eye className="w-4 h-4" />
+                          <span>{post.views}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* フレーズ雁E��チE*/}
+        {activeDetailTab === 'phrases' && selectedEvent.keyPhrases.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <MessageCircle className="w-5 h-5 text-success-green" />
+              <h3 className="text-lg font-semibold text-gray-900">効果的な声かけフレーズ</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {selectedEvent.keyPhrases.map((phrase, index) => (
+                <div key={index} className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-gray-800 font-medium text-base">{phrase}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+
+      {/* 統計情報 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button
+          onClick={() => setShowEventSelectionModal(true)}
+          className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-purple-600 hover:shadow-md transition-all"
+        >
+          <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+          <div className="text-xl font-bold text-gray-900">
+            {selectedParticipatingEvents.length}
+          </div>
+          <div className="text-sm text-gray-600">参加中イベンチE/div>
+          <div className="text-xs text-purple-600 mt-1">クリチE��して選抁E/div>
+        </button>
+        <button
+          onClick={() => setShowAllEventsModal(true)}
+          className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-sky-blue hover:shadow-md transition-all"
+        >
+          <Calendar className="w-8 h-8 text-sky-blue mx-auto mb-2" />
+          <div className="text-xl font-bold text-gray-900">{mockEvents.length}</div>
+          <div className="text-sm text-gray-600">総イベント数</div>
+          <div className="text-xs text-sky-blue mt-1">クリチE��して過去イベントを確誁E/div>
+        </button>
+      </div>
+
+      {/* 検索・フィルター */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="イベント名めE��グで検索..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+            />
+          </div>
+          
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+          >
+            <option value="all">すべて</option>
+            <option value="my-events">参加中のイベンチE/option>
+            <option value="active">開催中</option>
+            <option value="upcoming">開催予宁E/option>
+            <option value="completed">終亁E/option>
+          </select>
+        </div>
+      </div>
+
+      {/* イベント一覧 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {filteredEvents.map((event) => (
+          <div
+            key={event.id}
+            onClick={() => handleEventClick(event)}
+            className={`bg-white rounded-xl border p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group ${
+              selectedParticipatingEvents.includes(event.id)
+                ? 'border-purple-200 bg-purple-50'
+                : 'border-gray-200'
+            }`}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  {selectedParticipatingEvents.includes(event.id) && (
+                    <span className="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                      <Users className="w-3 h-3" />
+                      <span>参加中</span>
+                    </span>
+                  )}
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-sky-blue transition-colors">
+                    {event.name}
+                  </h3>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(event.status)}`}>
+                    {getStatusLabel(event.status)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-sky-blue transition-colors" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="text-center">
+                <div className="text-lg font-bold text-sky-blue">{event.totalPosts}</div>
+                <div className="text-xs text-gray-600">投稿事侁E/div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-success-green">{event.totalReactions}</div>
+                <div className="text-xs text-gray-600">リアクション</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-sunshine-yellow">{event.bestPractices.length}</div>
+                <div className="text-xs text-gray-600">ベスト事侁E/div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {event.tags.slice(0, 3).map((tag, index) => (
+                <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                  {tag}
+                </span>
+              ))}
+              {event.tags.length > 3 && (
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
+                  +{event.tags.length - 3}倁E                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {event.startDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })} - 
+                  {event.endDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Users className="w-4 h-4" />
+                <span>{event.stores.length}店�E</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredEvents.length === 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {filterStatus === 'my-events' ? '参加中のイベントがありません' : '該当するイベントが見つかりません'}
+          </h3>
+          <p className="text-gray-600">
+            {filterStatus === 'my-events' 
+              ? 'イベントに参加して事例を共有しましょぁE 
+              : '検索条件を変更してお試しください'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* ヒンチE*/}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <h3 className="font-semibold text-sky-blue mb-2">💡 イベント�Eージの活用方況E/h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
+          <div>
+            <h4 className="font-medium mb-1">事前準備</h4>
+            <ul className="space-y-1">
+              <li>• 過去の類似イベント事例を確誁E/li>
+              <li>• 成功パターンを事前学翁E/li>
+              <li>• 効果的なフレーズを準備</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-1">イベント中</h4>
+            <ul className="space-y-1">
+              <li>• ベスト�EラクチE��スを実践</li>
+              <li>• 新しい成功事例をコミュニティに投稿</li>
+              <li>• 他店�Eの最新事例をチェチE��</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* イベント選択モーダル */}
+      {showEventSelectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* モーダルヘッダー */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">参加イベントを選抁E/h2>
+                  <p className="text-gray-600 mt-1">開催中のイベントから参加するも�Eを選んでください</p>
+                </div>
+                <button
+                  onClick={() => setShowEventSelectionModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* エリアフィルタ */}
+              <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">エリア:</span>
+                {['all', '北海遁E, '東匁E, '関東', '中部', '近畿', '中国', '四国', '九巁E].map((area) => (
+                  <button
+                    key={area}
+                    onClick={() => setSelectedArea(area)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                      selectedArea === area
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {area === 'all' ? 'すべて' : area}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 開催中イベント一覧 */}
+            <div className="p-6 space-y-4">
+              {activeEvents.length > 0 ? (
+                activeEvents.map((event) => (
+                  <button
+                    key={event.id}
+                    onClick={() => handleToggleEventParticipation(event.id)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      selectedParticipatingEvents.includes(event.id)
+                        ? 'border-purple-600 bg-purple-50'
+                        : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-success-green">
+                            開催中
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>
+                              {event.startDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })} -
+                              {event.endDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Users className="w-4 h-4" />
+                            <span>{event.stores.length}店�E参加</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageCircle className="w-4 h-4" />
+                            <span>{event.totalPosts}件の事侁E/span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ml-3 ${
+                        selectedParticipatingEvents.includes(event.id)
+                          ? 'border-purple-600 bg-purple-600'
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedParticipatingEvents.includes(event.id) && (
+                          <Check className="w-4 h-4 text-white" />
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">現在開催中のイベント�Eありません</p>
+                </div>
+              )}
+            </div>
+
+            {/* モーダルフッター */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                {selectedParticipatingEvents.length}件のイベントを選択中
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowEventSelectionModal(false)}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleSaveParticipatingEvents}
+                  disabled={isLoading}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? '保存中...' : '保孁E}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 過去イベント一覧モーダル */}
+      {showAllEventsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            {/* モーダルヘッダー */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">過去のイベント一覧</h2>
+                  <p className="text-gray-600 mt-1">過去に開催されたイベントを確認できまぁE/p>
+                </div>
+                <button
+                  onClick={() => setShowAllEventsModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* フィルター */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">エリア</label>
+                  <select
+                    value={allEventsFilterArea}
+                    onChange={(e) => setAllEventsFilterArea(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                  >
+                    <option value="all">すべてのエリア</option>
+                    <option value="全国">全国</option>
+                    <option value="北海遁E>北海遁E/option>
+                    <option value="東匁E>東匁E/option>
+                    <option value="関東">関東</option>
+                    <option value="中部">中部</option>
+                    <option value="近畿">近畿</option>
+                    <option value="中国">中国</option>
+                    <option value="四国">四国</option>
+                    <option value="九州�E沖縁E>九州�E沖縁E/option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">年度</label>
+                  <select
+                    value={allEventsFilterYear}
+                    onChange={(e) => setAllEventsFilterYear(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                  >
+                    <option value="all">すべての年度</option>
+                    <option value="2024">2024年</option>
+                    <option value="2023">2023年</option>
+                    <option value="2022">2022年</option>
+                    <option value="2021">2021年</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* イベント一覧 */}
+            <div className="p-6 space-y-4">
+              {mockEvents
+                .filter(event => {
+                  // エリアマッピング関数
+                  const getAreaFromStore = (storeName: string): string => {
+                    if (storeName.includes('全店�E')) return '全国';
+                    if (storeName.includes('札幁E)) return '北海遁E;
+                    if (storeName.includes('仙台')) return '東匁E;
+                    if (storeName.includes('東京') || storeName.includes('渋谷') || storeName.includes('新宿') ||
+                        storeName.includes('池袁E) || storeName.includes('有楽町') || storeName.includes('秋葉厁E)) return '関東';
+                    if (storeName.includes('横流E) || storeName.includes('川崁E)) return '関東';
+                    if (storeName.includes('埼玁E) || storeName.includes('十E��')) return '関東';
+                    if (storeName.includes('名古屁E)) return '中部';
+                    if (storeName.includes('大阪') || storeName.includes('梁E��') || storeName.includes('難波') || storeName.includes('天王寺')) return '近畿';
+                    if (storeName.includes('福岡') || storeName.includes('天祁E) || storeName.includes('博夁E)) return '九州�E沖縁E;
+                    return '全国';
+                  };
+
+                  const areaMatch = allEventsFilterArea === 'all' ||
+                    event.stores.some(store => {
+                      const storeArea = getAreaFromStore(store);
+                      return storeArea === allEventsFilterArea;
+                    }) ||
+                    (allEventsFilterArea === '全国' && event.stores.includes('全店�E'));
+
+                  const yearMatch = allEventsFilterYear === 'all' ||
+                    event.startDate.getFullYear().toString() === allEventsFilterYear;
+
+                  return areaMatch && yearMatch;
+                })
+                .map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={() => {
+                      setShowAllEventsModal(false);
+                      handleEventClick(event);
+                    }}
+                    className="p-4 rounded-xl border-2 border-gray-200 hover:border-sky-blue hover:bg-gray-50 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(event.status)}`}>
+                            {getStatusLabel(event.status)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>
+                              {event.startDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })} -
+                              {event.endDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Users className="w-4 h-4" />
+                            <span>{event.stores.length}店�E参加</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageCircle className="w-4 h-4" />
+                            <span>{event.totalPosts}件の事侁E/span>
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 ml-3" />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
