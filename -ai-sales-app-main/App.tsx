@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
@@ -11,7 +11,7 @@ import Simulation from './components/Simulation/Simulation';
 import Evaluation from './components/Evaluation/Evaluation';
 import Achievements from './components/Achievements/Achievements';
 import Community from './components/Community/Community';
-import Consultation from './components/Consultation/ConsultationClean';
+import Consultation from './components/Consultation/Consultation';
 import Events from './components/Events/Events';
 import Profile from './components/Profile/Profile';
 import CasesCollection from './components/CasesCollection/CasesCollection';
@@ -24,34 +24,30 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
 
-  // 隱崎ｨｼ迥ｶ諷九・隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ
+  // 認証状態の読み込み中
   if (isLoading) {
     return (
       <div className="min-h-screen bg-light-gray flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-sky-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</p>
+          <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
     );
   }
 
-    // 新規登録処理
-  const handleSignup = async (
-    name: string,
-    email: string,
-    password: string,
-    department: string
-  ): Promise<boolean> => {
-    const newUser = await authService.register({
+  // 新規登録処理
+  const handleSignup = async (name: string, email: string, password: string, department: string): Promise<boolean> => {
+    const user = await authService.register({
       name,
       email,
       password,
       department,
-      role: 'learner',
+      role: 'learner'
     });
 
-    if (newUser) {
+    if (user) {
+      // 登録成功後、自動的にログイン
       const loginSuccess = await login(email, password);
       if (loginSuccess) {
         setAuthView('login');
@@ -61,7 +57,7 @@ function App() {
     return false;
   };
 
-  // 譛ｪ隱崎ｨｼ縺ｮ蝣ｴ蜷医・隱崎ｨｼ逕ｻ髱｢繧定｡ｨ遉ｺ
+  // 未認証の場合は認証画面を表示
   if (!isAuthenticated) {
     if (authView === 'signup') {
       return (
@@ -99,19 +95,20 @@ function App() {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
-      const getTabTitle = (tab: string): string => {
+  const getTabTitle = (tab: string): string => {
     const titles: Record<string, string> = {
-      dashboard: 'Dashboard',
-      simulation: 'Simulation',
-      evaluation: 'Evaluation',
-      events: 'Events',
-      community: 'Community',
-      consultation: 'Consultation',
-      cases: 'Cases',
+      dashboard: '学習コンテンツ',
+      simulation: 'AIシミュレーション',
+      evaluation: 'スキル評価',
+      events: '好きイベ事例',
+      community: 'コミュニティ',
+      consultation: '相談コーナー',
+      cases: '事例集'
     };
-    return titles[tab] || 'App';
+    return titles[tab] || 'AI口コミ先生';
   };
-const renderContent = () => {
+
+  const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard onNavigateToSimulation={() => setActiveTab('simulation')} />;
@@ -135,7 +132,7 @@ const renderContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-light-gray overflow-x-hidden">
+    <div className="min-h-screen bg-light-gray">
       <Header 
         title={getTabTitle(activeTab)} 
         onMenuToggle={() => setIsMobileMenuOpen(true)}
@@ -162,7 +159,7 @@ const renderContent = () => {
           onLogout={handleLogout}
         />
         
-        <main className="flex-1 w-full p-4 sm:p-6 max-w-7xl mx-auto overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 max-w-7xl">
           {renderContent()}
         </main>
       </div>
@@ -171,4 +168,3 @@ const renderContent = () => {
 }
 
 export default App;
-

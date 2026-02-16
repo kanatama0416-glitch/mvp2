@@ -1,14 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  // Ensure dynamic classes used in components are generated
-  safelist: [
-    'bg-sky-blue',
-    'bg-success-green',
-    'bg-sunshine-yellow',
-    'bg-vivid-red',
-    'bg-purple-600',
-  ],
   theme: {
     extend: {
       colors: {

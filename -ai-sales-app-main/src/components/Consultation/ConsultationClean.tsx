@@ -10,7 +10,7 @@ interface ChatMessage {
   time: string;
 }
 
-export default function Consultation() {
+export default function ConsultationClean() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -37,18 +37,19 @@ export default function Consultation() {
     const trimmed = input.trim();
     if (!trimmed) return;
 
+    const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
     const userMessage: ChatMessage = {
       id: `u-${Date.now()}`,
       role: 'user',
       text: trimmed,
-      time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+      time: now
     };
 
     const assistantMessage: ChatMessage = {
       id: `a-${Date.now() + 1}`,
       role: 'assistant',
       text: 'ありがとうございます。状況の一言だけ教えてもらえれば、使えるフレーズを提案します。',
-      time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+      time: now
     };
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
@@ -58,19 +59,8 @@ export default function Consultation() {
   const messageRows = useMemo(() => messages, [messages]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">相談コーナー</h1>
-          <p className="text-gray-600 mt-1">チャット形式で気軽に相談できます</p>
-        </div>
-        <div className="flex items-center space-x-2 text-sm text-success-green bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
-          <Leaf className="w-4 h-4" />
-          <span>オンライン</span>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="h-[calc(100vh-140px)]">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full flex flex-col">
         <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
           <div className="w-10 h-10 rounded-full bg-success-green text-white flex items-center justify-center">
             <Bot className="w-5 h-5" />
@@ -81,14 +71,12 @@ export default function Consultation() {
           </div>
         </div>
 
-        <div className="px-6 py-5 bg-gradient-to-b from-green-50/40 via-white to-white">
+        <div className="flex-1 px-6 py-5 bg-gradient-to-b from-green-50/40 via-white to-white overflow-y-auto">
           <div className="space-y-4">
             {messageRows.map((message) => (
               <div
                 key={message.id}
-                className={`flex items-start gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
                   <div className="w-9 h-9 rounded-full bg-green-100 text-success-green flex items-center justify-center flex-shrink-0">
