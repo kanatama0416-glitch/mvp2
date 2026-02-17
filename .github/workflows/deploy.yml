@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,15 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: -ai-sales-app-main   # ← ここ重要（先頭に - あり）
+        working-directory: ./-ai-sales-app-main   # ★ ./ を付けて安定化
     steps:
       - uses: actions/checkout@v4
+
+      # ★ デバッグ（1回だけ入れてOK）：フォルダが見えてるか確認
+      - name: Show repo structure
+        run: |
+          pwd
+          ls -la
+          ls -la ..
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: -ai-sales-app-main/package-lock.json  # ← ここも修正
+          cache-dependency-path: -ai-sales-app-main/package-lock.json
 
       - run: npm ci
 
@@ -35,7 +43,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist   # working-directory使ってるので dist だけでOK
+          path: -ai-sales-app-main/dist   # ★ working-directoryを使ってても、ここは確実にフルパスが堅い
 
   deploy:
     needs: build
