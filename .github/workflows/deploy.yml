@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ai-sales-app-main
+        working-directory: -ai-sales-app-main   # ← ここ重要（先頭に - あり）
     steps:
       - uses: actions/checkout@v4
 
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: ai-sales-app-main/package-lock.json
+          cache-dependency-path: -ai-sales-app-main/package-lock.json  # ← ここも修正
 
       - run: npm ci
 
@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist   # ← ここだけ修正
+          path: dist   # working-directory使ってるので dist だけでOK
 
   deploy:
     needs: build
