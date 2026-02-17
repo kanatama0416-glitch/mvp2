@@ -3,7 +3,6 @@ import {
   BarChart3,
   Trophy,
   BookOpen,
-  HelpCircle,
   LogOut,
   FolderOpen
 } from 'lucide-react';
@@ -19,7 +18,6 @@ interface SidebarProps {
 const menuItems = [
   { id: 'dashboard', label: '学習コンテンツ', icon: BookOpen },
   { id: 'cases', label: '事例集', icon: FolderOpen },
-  { id: 'consultation', label: '相談コーナー', icon: HelpCircle },
 ];
 
 export default function Sidebar({ activeTab, onTabChange, onReturnToOnboarding, onProfileClick, onLogout }: SidebarProps) {

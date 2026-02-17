@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, Video, Headphones, Play, MessageSquare, Heart, Clock, Sparkles, Award, Search, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import Simulation from '../Simulation/Simulation';
+import Consultation from '../Consultation/ConsultationClean';
 import BeginnerCourse from './BeginnerCourse';
 
 interface LearningContent {
@@ -281,6 +282,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onNavigateToSimulation }: DashboardProps) {
+  const [dashboardTab, setDashboardTab] = useState<'learning' | 'practice'>('learning');
   const [selectedContentType, setSelectedContentType] = useState<string | null>(null);
   const [showSimulation, setShowSimulation] = useState(false);
   const [contents, setContents] = useState<LearningContent[]>(mockLearningContents);
@@ -338,6 +340,43 @@ export default function Dashboard({ onNavigateToSimulation }: DashboardProps) {
     setShowSimulation(false);
   };
 
+  const handleDashboardTabChange = (tab: 'learning' | 'practice') => {
+    setDashboardTab(tab);
+    if (tab === 'practice') {
+      setSelectedContentType(null);
+      setShowSimulation(false);
+    }
+  };
+
+  const topTabs = (
+    <div className="bg-white rounded-xl border border-gray-200 p-1 overflow-hidden">
+      <div className="flex space-x-2 w-full">
+        <button
+          type="button"
+          onClick={() => handleDashboardTabChange('learning')}
+          className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
+            dashboardTab === 'learning'
+              ? 'bg-sky-blue text-white'
+              : 'text-gray-600 hover:bg-blue-50 hover:text-sky-blue'
+          }`}
+        >
+          学習
+        </button>
+        <button
+          type="button"
+          onClick={() => handleDashboardTabChange('practice')}
+          className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
+            dashboardTab === 'practice'
+              ? 'bg-success-green text-white'
+              : 'text-gray-600 hover:bg-green-50 hover:text-success-green'
+          }`}
+        >
+          練習
+        </button>
+      </div>
+    </div>
+  );
+
   const toggleFavorite = (contentId: string) => {
     setContents(prev => prev.map(content =>
       content.id === contentId
@@ -347,8 +386,22 @@ export default function Dashboard({ onNavigateToSimulation }: DashboardProps) {
   };
 
   // AIシミュレーションページを表示
+  if (dashboardTab === 'practice') {
+    return (
+      <div className="space-y-6">
+        {topTabs}
+        <Consultation />
+      </div>
+    );
+  }
+
   if (showSimulation) {
-    return <Simulation onBack={handleBackToContent} />;
+    return (
+      <div className="space-y-6">
+        {topTabs}
+        <Simulation onBack={handleBackToContent} />
+      </div>
+    );
   }
 
   // 特定のコンテンツタイプを表示
@@ -357,6 +410,7 @@ export default function Dashboard({ onNavigateToSimulation }: DashboardProps) {
 
     return (
       <div className="space-y-6">
+        {topTabs}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{getTypeLabel(selectedContentType)}</h1>
@@ -449,6 +503,7 @@ export default function Dashboard({ onNavigateToSimulation }: DashboardProps) {
 
   return (
     <div className="space-y-6">
+      {topTabs}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">学習コンテンツ</h1>
         <p className="text-gray-600 mt-1">あなたのレベルに合わせた学習で口コミスキルを向上させましょう</p>

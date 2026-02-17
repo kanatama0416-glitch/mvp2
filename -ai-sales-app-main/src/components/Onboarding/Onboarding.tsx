@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft, MessageCircle, Target, TrendingUp, Award, ThumbsUp } from 'lucide-react';
 
 interface OnboardingProps {
-  onComplete: () => void;
+  onComplete: (nextTab?: string) => void;
 }
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
@@ -12,8 +12,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     {
       id: 1,
       title: 'ようこそ！',
-      subtitle: 'AI口コミ先生へ',
-      description: 'あなたの接客スキルを"楽しく"磨けるアプリです',
+      subtitle: 'まなびーへ',
+      description: 'あなたの口コミスキルを高めるアプリです',
       bgColor: 'bg-gradient-to-br from-light-gray to-sky-blue/20',
       accentColor: 'sky-blue'
     },
@@ -28,19 +28,19 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     {
       id: 3,
       title: '何ができるか',
-      subtitle: '',
-      description: '',
+      subtitle: 'まなびーの特徴',
+      description: '口コミに関するスキルが体系的に身に着けられる',
       bgColor: 'bg-gradient-to-br from-light-gray to-blue-50',
       accentColor: 'sky-blue',
       features: [
         {
           icon: MessageCircle,
-          title: 'AIとの対話で接客スキルを体験',
+          title: 'カードに関する情報を一気にまとめて閲覧！',
           color: 'sky-blue'
         },
         {
           icon: Target,
-          title: 'あなたに合ったトレーニングプランを提案',
+          title: '自分が入るイベントのノウハウを確認！',
           color: 'orange-500'
         },
         {
@@ -50,18 +50,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         }
       ]
     },
-    {
-      id: 4,
-      title: '成長が見える！',
-      subtitle: 'トレーニングを重ねるごとに、あなたのスキルがどんどんレベルアップ！',
-      description: '成長がグラフやバッジで"見える化"されます。',
-      bgColor: 'bg-gradient-to-br from-light-gray to-orange-50',
-      accentColor: 'orange-500'
-    },
+
     {
       id: 5,
-      title: 'まずはあなたのスキルを評価しましょう！',
-      subtitle: 'AIとの簡単な会話で、あなたの"得意"を診断します。',
+      title: 'まずは！',
+      subtitle: '明日入るイベントを登録してノウハウを確認してみましょう！',
       description: '',
       bgColor: 'bg-gradient-to-br from-sky-blue/20 to-blue-100',
       accentColor: 'sky-blue',
@@ -82,7 +75,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   const handleStartEvaluation = () => {
-    onComplete();
+    onComplete('cases');
   };
 
   const currentSlideData = slides[currentSlide];
@@ -161,39 +154,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             {currentSlide === 3 && (
               <div className="text-center">
-                <div className="relative mb-8">
-                  <div className="w-40 h-32 bg-white rounded-xl shadow-lg mx-auto p-4 border-4 border-orange-200">
-                    <div className="space-y-2">
-                      <div className="h-2 bg-orange-500 rounded-full w-full"></div>
-                      <div className="h-2 bg-orange-400 rounded-full w-4/5"></div>
-                      <div className="h-2 bg-orange-300 rounded-full w-3/5"></div>
-                      <div className="h-2 bg-orange-200 rounded-full w-2/5"></div>
-                    </div>
-                  </div>
-                  <div className="absolute -top-2 -right-2 flex space-x-1">
-                    <div className="w-8 h-8 bg-sky-blue rounded-full flex items-center justify-center">
-                      <Award className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="w-8 h-8 bg-sunshine-yellow rounded-full flex items-center justify-center">
-                      <Award className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                </div>
-                
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                  {currentSlideData.title}
-                </h1>
-                <h2 className="text-xl sm:text-2xl font-semibold text-orange-600 mb-6">
-                  {currentSlideData.subtitle}
-                </h2>
-                <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-                  {currentSlideData.description}
-                </p>
-              </div>
-            )}
-
-            {currentSlide === 4 && (
-              <div className="text-center">
                 <div className="w-32 h-32 bg-gradient-to-r from-sky-blue to-blue-500 rounded-full flex items-center justify-center mx-auto mb-8 relative">
                   <ThumbsUp className="w-16 h-16 text-white" />
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-sunshine-yellow rounded-full flex items-center justify-center">
@@ -212,7 +172,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   onClick={handleStartEvaluation}
                   className="px-8 py-4 bg-vivid-red text-white text-xl font-bold rounded-xl hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
-                  スキル評価をはじめる
+                  イベントノウハウをみる
                 </button>
               </div>
             )}

@@ -4,7 +4,6 @@ import {
   BarChart3,
   BookOpen,
   Settings,
-  HelpCircle,
   FolderOpen
 } from 'lucide-react';
 
@@ -20,7 +19,6 @@ interface MobileMenuProps {
 const menuItems = [
   { id: 'dashboard', label: '学習コンテンツ', icon: BookOpen },
   { id: 'cases', label: '事例集', icon: FolderOpen },
-  { id: 'consultation', label: '相談コーナー', icon: HelpCircle },
 ];
 
 export default function MobileMenu({ isOpen, onClose, activeTab, onTabChange, onReturnToOnboarding, onLogout }: MobileMenuProps) {

@@ -11,7 +11,6 @@ import Simulation from './components/Simulation/Simulation';
 import Evaluation from './components/Evaluation/Evaluation';
 import Achievements from './components/Achievements/Achievements';
 import Community from './components/Community/Community';
-import Consultation from './components/Consultation/ConsultationClean';
 import Events from './components/Events/Events';
 import Profile from './components/Profile/Profile';
 import CasesCollection from './components/CasesCollection/CasesCollection';
@@ -79,9 +78,9 @@ function App() {
     );
   }
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (nextTab: string = 'evaluation') => {
     setShowOnboarding(false);
-    setActiveTab('evaluation');
+    setActiveTab(nextTab);
   };
 
   const handleReturnToOnboarding = () => {
@@ -106,7 +105,6 @@ function App() {
       evaluation: 'Evaluation',
       events: 'Events',
       community: 'Community',
-      consultation: 'Consultation',
       cases: 'Cases',
     };
     return titles[tab] || 'App';
@@ -123,8 +121,6 @@ const renderContent = () => {
         return <Events />;
       case 'community':
         return <Community />;
-      case 'consultation':
-        return <Consultation />;
       case 'cases':
         return <CasesCollection />;
       case 'profile':
@@ -171,4 +167,3 @@ const renderContent = () => {
 }
 
 export default App;
-
