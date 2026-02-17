@@ -16,16 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./-ai-sales-app-main   # ★ ./ を付けて安定化
+        working-directory: ./-ai-sales-app-main
     steps:
       - uses: actions/checkout@v4
-
-      # ★ デバッグ（1回だけ入れてOK）：フォルダが見えてるか確認
-      - name: Show repo structure
-        run: |
-          pwd
-          ls -la
-          ls -la ..
 
       - uses: actions/setup-node@v4
         with:
@@ -41,9 +34,13 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
+      # ★ distができてるか確認（念のため）
+      - name: List dist
+        run: ls -la dist
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: -ai-sales-app-main/dist   # ★ working-directoryを使ってても、ここは確実にフルパスが堅い
+          path: -ai-sales-app-main/dist   # ★ここが核心（フルパスにする）
 
   deploy:
     needs: build
