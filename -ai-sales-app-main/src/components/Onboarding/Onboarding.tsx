@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, MessageCircle, Target, TrendingUp, Award, ThumbsUp } from 'lucide-react';
+import {
+  ChevronRight,
+  ChevronLeft,
+  MessageCircle,
+  Search,
+  Sparkles,
+  Zap,
+  Layout,
+  ArrowDown,
+  Layers,
+  MousePointer2,
+  FileText,
+  CreditCard,
+  Calendar,
+  ShieldCheck
+} from 'lucide-react';
 
 interface OnboardingProps {
   onComplete: (nextTab?: string) => void;
@@ -12,53 +27,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     {
       id: 1,
       title: 'ようこそ！',
-      subtitle: 'まなびーへ',
-      description: 'あなたの口コミスキルを高めるアプリです',
-      bgColor: 'bg-gradient-to-br from-light-gray to-sky-blue/20',
-      accentColor: 'sky-blue'
+      subtitle: '口コミ応援アプリ「まなびー」へ',
+      description: 'あなたの「伝えたい」という想いを、確かなスキルに変えるパートナーです。',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-100',
     },
     {
       id: 2,
-      title: '丸井の"口コミの力"を',
-      subtitle: 'だれでも、どこでも、身につけられる！',
-      description: '属人的だったスキルをデジタルで学び、あなたの"強み"に変えます。',
-      bgColor: 'bg-gradient-to-br from-red-50 to-orange-50',
-      accentColor: 'vivid-red'
+      title: '情報が、ひとつに。',
+      subtitle: '探す時間を、向き合う時間へ',
+      description: '情報をまとめ、探す時間を向き合う時間へ',
+      bgColor: 'bg-gradient-to-br from-white to-sky-50',
     },
     {
       id: 3,
-      title: '何ができるか',
-      subtitle: 'まなびーの特徴',
-      description: '口コミに関するスキルが体系的に身に着けられる',
-      bgColor: 'bg-gradient-to-br from-light-gray to-blue-50',
-      accentColor: 'sky-blue',
-      features: [
-        {
-          icon: MessageCircle,
-          title: 'カードに関する情報を一気にまとめて閲覧！',
-          color: 'sky-blue'
-        },
-        {
-          icon: Target,
-          title: '自分が入るイベントのノウハウを確認！',
-          color: 'orange-500'
-        },
-        {
-          icon: TrendingUp,
-          title: 'どこでも、何度でも、スキルを磨ける',
-          color: 'sunshine-yellow'
-        }
-      ]
+      title: '達人のコツを、構造で学ぶ。',
+      subtitle: '「感覚」を「理論」に分解しました',
+      description: '口コミの達人の思考プロセスを分解。だから、誰でも今日から実践できます。',
+      bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
     },
-
     {
-      id: 5,
-      title: 'まずは！',
-      subtitle: '明日入るイベントを登録してノウハウを確認してみましょう！',
-      description: '',
-      bgColor: 'bg-gradient-to-br from-sky-blue/20 to-blue-100',
-      accentColor: 'sky-blue',
-      isLast: true
+      id: 4,
+      title: 'さあ、準備は万端！',
+      subtitle: '「好き」を応援する活動を始めましょう',
+      description: 'まずはイベントのノウハウを確認してみましょう！',
+      bgColor: 'bg-gradient-to-br from-green-50 to-teal-50',
     }
   ];
 
@@ -74,134 +66,190 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     }
   };
 
-  const handleStartEvaluation = () => {
-    onComplete('cases');
-  };
-
   const currentSlideData = slides[currentSlide];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className={`w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden ${currentSlideData.bgColor}`}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 font-sans text-slate-900">
+      {/* 共通のカードスタイル */}
+      <div className={`w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 ${currentSlideData.bgColor} border-4 border-white`}>
         <div className="relative min-h-[600px] flex flex-col">
           {/* Progress Bar */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-white/30">
-            <div 
-              className="h-full bg-vivid-red transition-all duration-500"
+          <div className="absolute top-6 left-12 right-12 h-1.5 bg-black/5 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-red-500 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(239,68,68,0.5)]"
               style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
             />
           </div>
 
-          {/* Slide Content */}
           <div className="flex-1 p-8 sm:p-12 flex flex-col justify-center">
+            {/* Slide 1: Welcome */}
             {currentSlide === 0 && (
-              <div className="text-center">
-                <div className="w-24 h-24 bg-vivid-red rounded-full flex items-center justify-center mx-auto mb-8">
-                  <MessageCircle className="w-12 h-12 text-white" />
+              <div className="text-center space-y-6">
+                <div className="w-24 h-24 bg-red-500 rounded-[2rem] rotate-12 flex items-center justify-center mx-auto shadow-xl">
+                  <Sparkles className="w-12 h-12 text-white -rotate-12" />
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                  {currentSlideData.title}
-                </h1>
-                <h2 className="text-2xl sm:text-3xl font-semibold text-sky-blue mb-6">
-                  {currentSlideData.subtitle}
-                </h2>
-                <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-                  {currentSlideData.description}
-                </p>
+                <h1 className="text-5xl font-black tracking-tight">{currentSlideData.title}</h1>
+                <h2 className="text-2xl font-bold text-blue-600">{currentSlideData.subtitle}</h2>
+                <p className="text-lg text-slate-500 max-w-md mx-auto">{currentSlideData.description}</p>
               </div>
             )}
 
+            {/* Slide 2: 情報が、ひとつに（収束アニメーション） */}
             {currentSlide === 1 && (
-              <div className="text-center">
-                <div className="w-32 h-32 bg-gradient-to-r from-vivid-red to-orange-500 rounded-full flex items-center justify-center mx-auto mb-8">
-                  <ThumbsUp className="w-16 h-16 text-white" />
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-vivid-red mb-4">
-                  {currentSlideData.title}
-                </h1>
-                <h2 className="text-xl sm:text-2xl font-semibold text-orange-600 mb-6">
-                  {currentSlideData.subtitle}
-                </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  {currentSlideData.description}
-                </p>
-              </div>
-            )}
+              <div className="text-center relative">
+                <h1 className="text-4xl font-black mb-2">{currentSlideData.title}</h1>
+                <p className="text-slate-500 mb-12">{currentSlideData.description}</p>
 
-            {currentSlide === 2 && (
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-12">
-                  {currentSlideData.title}
-                </h1>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {currentSlideData.features?.map((feature, index) => {
-                    const Icon = feature.icon;
-                    return (
-                      <div key={index} className="bg-white rounded-xl p-6 shadow-lg text-center">
-                        <div className={`w-16 h-16 bg-${feature.color}/10 rounded-full flex items-center justify-center mx-auto mb-4`}>
-                          <Icon className={`w-8 h-8 text-${feature.color}`} />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 leading-tight">
-                          {feature.title}
-                        </h3>
+                <div className="relative h-64 w-64 mx-auto flex items-center justify-center">
+                  {/* 周辺から集まるアイコン達 */}
+                  {[Search, MessageCircle, Zap, FileText, CreditCard, Calendar].map((Icon, i) => (
+                    <div
+                      key={i}
+                      className="absolute animate-pulse"
+                      style={{
+                        animation: `converge 2s infinite ease-in-out ${i * 0.2}s`,
+                        opacity: 0
+                      }}
+                    >
+                      <div className="p-3 bg-white rounded-full shadow-md text-blue-400">
+                        <Icon size={24} />
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
+
+                  {/* 中心点：まなびーロゴ */}
+                  <div className="z-10 w-24 h-24 bg-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-2xl border-4 border-white">
+                    <Layout className="text-white w-12 h-12" />
+                  </div>
+
+                  {/* 背景の波紋 */}
+                  <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping"></div>
                 </div>
+
+                <style
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                  @keyframes converge {
+                    0% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1.2); opacity: 0; }
+                    20% { opacity: 1; }
+                    80% { transform: translate(0, 0) scale(0.5); opacity: 0.5; }
+                    100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+                  }
+                  .absolute:nth-child(1) { --tw-translate-x: -120px; --tw-translate-y: -100px; }
+                  .absolute:nth-child(2) { --tw-translate-x: 120px; --tw-translate-y: -80px; }
+                  .absolute:nth-child(3) { --tw-translate-x: -140px; --tw-translate-y: 60px; }
+                  .absolute:nth-child(4) { --tw-translate-x: 140px; --tw-translate-y: 80px; }
+                  .absolute:nth-child(5) { --tw-translate-x: 0px; --tw-translate-y: -150px; }
+                  .absolute:nth-child(6) { --tw-translate-x: 0px; --tw-translate-y: 150px; }
+                `
+                  }}
+                />
               </div>
             )}
 
-            {currentSlide === 3 && (
-              <div className="text-center">
-                <div className="w-32 h-32 bg-gradient-to-r from-sky-blue to-blue-500 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-                  <ThumbsUp className="w-16 h-16 text-white" />
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-sunshine-yellow rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">GO!</span>
+            {/* Slide 3: ノウハウ分解（構造化） */}
+            {currentSlide === 2 && (
+              <div className="text-center flex flex-col items-center">
+                <h1 className="text-3xl font-black mb-2">{currentSlideData.title}</h1>
+                <h2 className="text-lg font-bold text-orange-600 mb-8">{currentSlideData.subtitle}</h2>
+                
+                <div className="w-full max-w-md space-y-4">
+                  {/* 分解プロセス図：もくもく雲デザイン */}
+                  <div className="relative mx-auto w-fit py-4">
+                    {/* 背景の装飾小円（もくもくの泡） */}
+                    <div className="absolute -left-2 top-2 h-4 w-4 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.1s' }} />
+                    <div className="absolute -right-1 top-4 h-3 w-3 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.3s' }} />
+                    <div className="absolute left-1/2 -top-2 h-3 w-3 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.5s' }} />
+                    
+                    {/* メインのもくもく雲（SVGパス） */}
+                    <div className="relative flex items-center justify-center">
+                      <svg className="absolute w-[200px] h-[100px] text-white drop-shadow-md" viewBox="0 0 200 100" fill="currentColor">
+                        <path d="M158.4,45.9c0-12.7-10.3-23-23-23c-1.8,0-3.6,0.2-5.3,0.6c-4.4-8.8-13.4-14.8-23.9-14.8c-10.3,0-19.1,5.8-23.6,14.3
+              c-2.4-1.2-5.1-1.9-8-1.9c-8.9,0-16.3,6.5-17.7,15c-1.2-0.2-2.5-0.3-3.8-0.3c-10,0-18.1,8.1-18.1,18.1c0,10,8.1,18.1,18.1,18.1
+              c1.2,0,2.3-0.1,3.4-0.3c3.6,8,11.7,13.6,21.1,13.6c2.8,0,5.4-0.5,7.8-1.4c4.6,7.5,13,12.5,22.5,12.5c10.3,0,19.3-5.8,23.8-14.5
+              c1.8,0.5,3.7,0.8,5.7,0.8c12.7,0,23-10.3,23-23C161.7,55.3,160.4,50.2,158.4,45.9z" />
+                      </svg>
+                      
+                      <div className="relative z-10 px-8 py-6">
+                        <span className="text-xs font-bold text-orange-500 uppercase tracking-widest block">達人の</span>
+                        <span className="text-xl font-black text-orange-600 tracking-tighter">「感覚」</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <ArrowDown className="text-orange-400 animate-bounce mx-auto" />
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-500">
+                      <Layers className="mx-auto mb-2 text-blue-500" size={20} />
+                      <div className="text-xs font-bold">要素に<br/>分ける</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500">
+                      <MousePointer2 className="mx-auto mb-2 text-green-500" size={20} />
+                      <div className="text-xs font-bold">手順を<br/>整理</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-red-500">
+                      <Sparkles className="mx-auto mb-2 text-red-500" size={20} />
+                      <div className="text-xs font-bold">コツを<br/>可視化</div>
+                    </div>
+                  </div>
+
+                  <ArrowDown className="text-orange-400 mx-auto" />
+
+                  <div className="bg-orange-500 p-4 rounded-2xl shadow-lg transform scale-105">
+                    <div className="text-white font-bold flex items-center justify-center gap-2">
+                      <ShieldCheck /> 誰でも実践しやすいノウハウに！
+                    </div>
                   </div>
                 </div>
-                
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                  {currentSlideData.title}
-                </h1>
-                <h2 className="text-xl sm:text-2xl font-semibold text-sky-blue mb-8">
-                  {currentSlideData.subtitle}
-                </h2>
-                
+              </div>
+            )}
+
+            {/* Slide 4: CTA */}
+            {currentSlide === 3 && (
+              <div className="text-center space-y-8">
+                <div className="relative inline-block">
+                  <div className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                    <Calendar className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="absolute -right-2 -top-2 bg-yellow-400 text-xs font-black px-3 py-1 rounded-full shadow-md animate-bounce">
+                    GO!
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-4xl font-black leading-tight">{currentSlideData.title}</h1>
+                  <p className="text-lg text-slate-500">{currentSlideData.description}</p>
+                </div>
+
                 <button
-                  onClick={handleStartEvaluation}
-                  className="px-8 py-4 bg-vivid-red text-white text-xl font-bold rounded-xl hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  onClick={() => onComplete('cases')}
+                  className="group relative inline-flex items-center gap-3 px-12 py-5 bg-red-500 text-white text-xl font-black rounded-2xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_15px_30px_rgba(239,68,68,0.4)] active:scale-95"
                 >
                   イベントノウハウをみる
+                  <ChevronRight className="group-hover:translate-x-2 transition-transform" />
                 </button>
               </div>
             )}
           </div>
 
-          {/* Navigation */}
-          <div className="p-6 sm:p-8 flex items-center justify-between">
+          {/* Navigation Bottom */}
+          <div className="px-12 py-10 flex items-center justify-between">
             <button
               onClick={prevSlide}
-              disabled={currentSlide === 0}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                currentSlide === 0
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              className={`flex items-center gap-1 font-bold transition-all ${
+                currentSlide === 0 ? 'opacity-0 pointer-events-none' : 'text-slate-400 hover:text-slate-900'
               }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft size={24} />
               <span>戻る</span>
             </button>
 
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               {slides.map((_, index) => (
-                <button
+                <div
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentSlide
-                      ? 'bg-vivid-red scale-125'
-                      : 'bg-white/50 hover:bg-white/75'
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    index === currentSlide ? 'w-10 bg-slate-900' : 'w-2.5 bg-slate-300'
                   }`}
                 />
               ))}
@@ -210,13 +258,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             {currentSlide < slides.length - 1 ? (
               <button
                 onClick={nextSlide}
-                className="flex items-center space-x-2 px-6 py-3 bg-vivid-red text-white rounded-lg hover:bg-red-600 transition-all duration-300 font-semibold"
+                className="flex items-center gap-1 bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all shadow-lg hover:-translate-y-0.5"
               >
                 <span>次へ</span>
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight size={20} />
               </button>
             ) : (
-              <div className="w-20"></div>
+              <div className="w-24"></div>
             )}
           </div>
         </div>

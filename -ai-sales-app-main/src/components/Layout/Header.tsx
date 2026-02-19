@@ -32,7 +32,7 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
             <div className="w-8 h-8 bg-vivid-red rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">AI口コミ先生</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">まなびー</h1>
           </div>
           <div className="hidden md:block w-px h-6 bg-gray-300" />
           <h2 className="hidden md:block text-base lg:text-lg text-gray-700">{title}</h2>

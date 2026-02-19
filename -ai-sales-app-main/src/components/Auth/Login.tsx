@@ -108,7 +108,7 @@ export default function Login({ onLogin, onNavigateToSignup }: LoginProps) {
           <div className="w-20 h-20 bg-vivid-red rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">AI口コミ先生</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">まなびー</h1>
           <p className="text-gray-600">社員ログイン</p>
         </div>
 
@@ -240,7 +240,7 @@ export default function Login({ onLogin, onNavigateToSignup }: LoginProps) {
         {/* フッター */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            © 2024 丸井グループ AI口コミ先生
+            © 2024 丸井グループ まなびー
           </p>
         </div>
       </div>
