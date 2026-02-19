@@ -27,27 +27,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     {
       id: 1,
       title: 'ようこそ！',
-      subtitle: '口コミ応援アプリ「まなびー」へ',
+      subtitle: '口コミ応援アプリ\n「まなびー」へ',
       description: 'あなたの「伝えたい」という想いを、確かなスキルに変えるパートナーです。',
       bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-100',
     },
     {
       id: 2,
-      title: '情報が、ひとつに。',
+      title: '情報をひとつに',
       subtitle: '探す時間を、向き合う時間へ',
       description: '情報をまとめ、探す時間を向き合う時間へ',
       bgColor: 'bg-gradient-to-br from-white to-sky-50',
     },
     {
       id: 3,
-      title: '達人のコツを、構造で学ぶ。',
+      title: '達人のコツを、\n構造で学ぶ',
       subtitle: '「感覚」を「理論」に分解しました',
       description: '口コミの達人の思考プロセスを分解。だから、誰でも今日から実践できます。',
       bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
     },
     {
       id: 4,
-      title: 'さあ、準備は万端！',
+      title: '準備は万端！',
       subtitle: '「好き」を応援する活動を始めましょう',
       description: 'まずはイベントのノウハウを確認してみましょう！',
       bgColor: 'bg-gradient-to-br from-green-50 to-teal-50',
@@ -88,8 +88,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <div className="w-24 h-24 bg-red-500 rounded-[2rem] rotate-12 flex items-center justify-center mx-auto shadow-xl">
                   <Sparkles className="w-12 h-12 text-white -rotate-12" />
                 </div>
-                <h1 className="text-5xl font-black tracking-tight">{currentSlideData.title}</h1>
-                <h2 className="text-2xl font-bold text-blue-600">{currentSlideData.subtitle}</h2>
+                <h1 className="text-5xl font-black tracking-tight whitespace-pre-line">{currentSlideData.title}</h1>
+                <h2 className="text-2xl font-bold text-blue-600 whitespace-pre-line">{currentSlideData.subtitle}</h2>
                 <p className="text-lg text-slate-500 max-w-md mx-auto">{currentSlideData.description}</p>
               </div>
             )}
@@ -97,7 +97,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             {/* Slide 2: 情報が、ひとつに（収束アニメーション） */}
             {currentSlide === 1 && (
               <div className="text-center relative">
-                <h1 className="text-4xl font-black mb-2">{currentSlideData.title}</h1>
+                <h1 className="text-4xl font-black mb-2 whitespace-pre-line">{currentSlideData.title}</h1>
                 <p className="text-slate-500 mb-12">{currentSlideData.description}</p>
 
                 <div className="relative h-64 w-64 mx-auto flex items-center justify-center">
@@ -150,7 +150,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             {/* Slide 3: ノウハウ分解（構造化） */}
             {currentSlide === 2 && (
               <div className="text-center flex flex-col items-center">
-                <h1 className="text-3xl font-black mb-2">{currentSlideData.title}</h1>
+                <h1 className="text-3xl font-black mb-2 whitespace-pre-line">{currentSlideData.title}</h1>
                 <h2 className="text-lg font-bold text-orange-600 mb-8">{currentSlideData.subtitle}</h2>
                 
                 <div className="w-full max-w-md space-y-4">
@@ -217,7 +217,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h1 className="text-4xl font-black leading-tight">{currentSlideData.title}</h1>
+                  <h1 className="text-4xl font-black leading-tight whitespace-pre-line">{currentSlideData.title}</h1>
                   <p className="text-lg text-slate-500">{currentSlideData.description}</p>
                 </div>
 
