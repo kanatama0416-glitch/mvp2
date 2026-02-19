@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Bell, Settings, Menu, LogOut } from 'lucide-react';
+import { User, Menu, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
@@ -39,15 +39,6 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
         </div>
         
         <div className="flex items-center space-x-4">
-          <button className="relative p-2 text-gray-400 hover:text-sky-blue transition-colors hidden sm:block">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-sunshine-yellow rounded-full"></span>
-          </button>
-          
-          <button className="p-2 text-gray-400 hover:text-sky-blue transition-colors hidden sm:block">
-            <Settings className="w-5 h-5" />
-          </button>
-          
           <button 
             onClick={onLogout}
             className="p-2 text-gray-400 hover:text-vivid-red transition-colors hidden sm:block"

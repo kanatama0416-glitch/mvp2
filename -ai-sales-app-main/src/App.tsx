@@ -154,7 +154,6 @@ const renderContent = () => {
           activeTab={activeTab} 
           onTabChange={setActiveTab}
           onReturnToOnboarding={handleReturnToOnboarding}
-          onProfileClick={() => setActiveTab('profile')}
           onLogout={handleLogout}
         />
         

@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Calendar,
-  Star,
   Users,
-  TrendingUp,
   MessageCircle,
   Search,
   ChevronRight,
-  Sparkles,
-  Award,
-  Eye,
   ThumbsUp,
   X,
   Check,
   ExternalLink
 } from 'lucide-react';
-import { mockCommunityPosts } from '../../data/mockData';
 import { CommunityPost } from '../../types';
 import EventPostForm from './EventPostForm';
 import { useAuth } from '../../hooks/useAuth';
@@ -47,11 +41,38 @@ interface Event {
   };
 }
 
-const mockEvents: Event[] = [
+type ViewMode = 'list' | 'detail';
+type ViewModeWithCreate = 'list' | 'detail' | 'create';
+const animeEvents: Event[] = [
   {
-    id: '1',
-    name: '呪術廻戦フェア',
-    description: '人気アニメ「呪術廻戦」とのコラボレーションイベント。限定グッズ販売とカード口コミ強化キャンペーン',
+    id: 'deco27',
+    name: 'DECO*27フェア（実証実験で使用）',
+    description: 'ボカロP「DECO*27」とのコラボ企画。限定グッズ販売と抽選企画を実施。',
+    startDate: new Date('2024-02-01'),
+    endDate: new Date('2024-02-28'),
+    status: 'active',
+    tags: ['#DECO27', '#ボカロ', '#限定グッズ', '#抽選企画'],
+    totalPosts: 10,
+    totalViews: 420,
+    totalReactions: 95,
+    stores: ['渋谷店', '池袋店'],
+    bestPractices: [],
+    successPatterns: ['楽曲やMVの話題から自然に会話を開始', '限定性を伝えて来店動機を強化'],
+    keyPhrases: ['「新曲、聴きました？」', '「会場限定グッズがあります」'],
+    aiSummary: 'ファンの熱量が高いので、作品理解と限定感の演出が効果的でした。',
+    essentialKnowledge: {
+      overview: 'DECO*27はボーカロイド楽曲で人気のプロデューサー。',
+      mainCharacters: ['代表曲の世界観', 'ファンコミュニティ'],
+      fanBase: ['10代〜30代中心', 'SNS拡散力が高い'],
+      precautions: ['作品理解を示す', '限定情報は正確に伝える'],
+      servicePoints: ['楽曲への共感', '限定企画の案内'],
+      officialSiteUrl: 'https://www.deco27.com/'
+    }
+  },
+  {
+    id: 'jujutsu',
+    name: '呪術廻戦フェア（ダミー）',
+    description: '人気アニメ「呪術廻戦」とのコラボイベント。限定グッズ販売とカード口コミ強化キャンペーン。',
     startDate: new Date('2024-01-15'),
     endDate: new Date('2024-02-15'),
     status: 'active',
@@ -60,935 +81,274 @@ const mockEvents: Event[] = [
     totalViews: 456,
     totalReactions: 89,
     stores: ['渋谷店', '新宿店', '池袋店', '有楽町店'],
-    bestPractices: mockCommunityPosts.slice(0, 2),
-    successPatterns: [
-      'キャラクター愛を共感ポイントにした自然な声かけ',
-      'イベント限定特典を活用したカード提案',
-      'ファン心理を理解した丁寧な接客'
-    ],
-    keyPhrases: [
-      '「このキャラクター、人気ですよね！」',
-      '「イベント期間中だけの特典があるんです」',
-      '「次回のコラボでもお得に使えます」'
-    ],
-    aiSummary: 'アニメファンの心理を理解し、共感を示すことで自然なカード口コミにつなげる成功パターンが多数報告されています。特に限定感を演出する声かけが効果的です。',
+    bestPractices: [],
+    successPatterns: ['キャラクター愛に共感した声かけ', '限定特典を使った提案'],
+    keyPhrases: ['「このキャラクター人気ですよね」', '「イベント期間限定の特典です」'],
+    aiSummary: '共感と限定感を組み合わせた提案が効果的でした。',
     essentialKnowledge: {
-      overview: '「呪術廻戦」は呪霊と呪術師の戦いを描く人気アニメ作品。現代日本を舞台に、高校生の主人公が呪術師として成長していく物語。',
-      mainCharacters: [
-        '虎杖悠仁：明るく正義感の強い主人公',
-        '五条悟：最強の呪術師で人気No.1キャラクター',
-        '伏黒恵：クールで冷静な同級生'
-      ],
-      fanBase: [
-        '学生・若年層（10代〜20代）が中心',
-        'SNSで拡散力が強い',
-        '女性ファンが多数を占める',
-        'キャラクターグッズへの購買意欲が高い'
-      ],
-      precautions: [
-        '人気グッズは即完売するため、限定感を強調',
-        'ファン心理を尊重し、作品への理解を示す',
-        '初手でカード勧誘せず、会話から自然に導入',
-        'キャラクター名や設定を間違えないよう注意'
-      ],
-      servicePoints: [
-        'キャラ愛に共感してから会話に入る',
-        '限定特典をカード提案のきっかけに',
-        '熱量を尊重し、過度に営業的にならない',
-        '「次回のコラボでもお得」というメリットを提示'
-      ],
+      overview: '「呪術廻戦」は呪霊と呪術師の戦いを描く人気作品。',
+      mainCharacters: ['虎杖悠仁', '五条悟', '伏黒恵'],
+      fanBase: ['10代〜20代中心', '女性ファンも多い'],
+      precautions: ['作品理解を示す', 'キャラ名の誤りに注意'],
+      servicePoints: ['共感から会話開始', '限定特典の訴求'],
       officialSiteUrl: 'https://jujutsukaisen.jp/'
     }
   },
   {
-    id: '2',
-    name: 'MGAフェス2024',
-    description: 'マルイグループ年次イベント。全店舗参加の大型キャンペーン',
+    id: 'kimetsu',
+    name: '鬼滅の刃 竈門炭治郎立志編（ダミー）',
+    description: '「鬼滅の刃」コラボイベント。限定グッズとコラボカフェが登場。',
     startDate: new Date('2024-02-01'),
-    endDate: new Date('2024-02-29'),
-    status: 'completed',
-    tags: ['#MGAフェス', '#全店舗', '#年次イベント', '#キャンペーン'],
-    totalPosts: 28,
-    totalViews: 1234,
-    totalReactions: 267,
-    stores: ['全店舗'],
-    bestPractices: mockCommunityPosts.slice(1, 3),
-    successPatterns: [
-      'イベント特典を活用した積極的な声かけ',
-      'お客様の購買意欲が高い時期を狙った提案',
-      'チーム一丸となった接客体制'
-    ],
-    keyPhrases: [
-      '「フェス期間中の特別特典です」',
-      '「今だけのお得なキャンペーンがあります」',
-      '「年に一度の大チャンスです」'
-    ],
-    aiSummary: '全店舗参加の大型イベントでは、統一された声かけパターンと特典活用が成功の鍵となっています。お客様の購買意欲が高まる時期を活用した積極的なアプローチが効果的です。'
-  },
-  {
-    id: '3',
-    name: 'バレンタインフェア',
-    description: 'バレンタインシーズンの特別企画。ギフト需要を狙ったカード口コミ強化',
-    startDate: new Date('2024-02-01'),
-    endDate: new Date('2024-02-14'),
+    endDate: new Date('2024-03-01'),
     status: 'active',
-    tags: ['#バレンタイン', '#ギフト', '#季節イベント', '#カップル'],
-    totalPosts: 8,
-    totalViews: 234,
-    totalReactions: 45,
-    stores: ['渋谷店', '新宿店', '池袋店'],
-    bestPractices: [],
-    successPatterns: [
-      'ギフト需要を意識したペア提案',
-      '特別感を演出するカード特典の紹介',
-      'カップルや家族連れへの温かい接客'
-    ],
-    keyPhrases: [
-      '「プレゼントにぴったりの特典があります」',
-      '「カードがあれば次回もお得にご利用いただけます」',
-      '「バレンタイン限定のポイント還元キャンペーン中です」'
-    ],
-    aiSummary: 'ギフト需要が高まるバレンタインシーズンは、カップルやファミリー層へのアプローチが効果的です。特別感を演出する声かけとペア提案が成功のポイントです。'
-  },
-  {
-    id: '4',
-    name: 'チェンソーマンコラボ',
-    description: '大人気アニメ「チェンソーマン」とのコラボイベント。限定グッズと特典満載',
-    startDate: new Date('2024-01-20'),
-    endDate: new Date('2024-03-31'),
-    status: 'active',
-    tags: ['#チェンソーマン', '#アニメコラボ', '#限定グッズ', '#若年層'],
+    tags: ['#鬼滅の刃', '#アニメコラボ', '#限定グッズ', '#コラボカフェ'],
     totalPosts: 15,
-    totalViews: 567,
+    totalViews: 521,
     totalReactions: 102,
-    stores: ['アニメイト渋谷店', 'アニメイト新宿店', 'アニメイト池袋店'],
-    bestPractices: mockCommunityPosts.slice(0, 1),
-    successPatterns: [
-      'ファン心理を理解した共感的アプローチ',
-      'コラボ限定特典を活用した提案',
-      '作品への愛を尊重した丁寧な接客'
-    ],
-    keyPhrases: [
-      '「チェンソーマンファンですか？限定特典があるんです」',
-      '「次のコラボイベントでもお得に使えますよ」',
-      '「カード会員様だけの先行販売もあります」'
-    ],
-    aiSummary: 'アニメファンへのアプローチでは、作品への理解と共感が鍵となります。限定感と特別感を演出することで自然なカード提案につながっています。'
+    stores: ['新宿店', '池袋店', '横浜店'],
+    bestPractices: [],
+    successPatterns: ['家族連れへの配慮', '限定グッズの希少性訴求'],
+    keyPhrases: ['「期間限定グッズです」', '「ご家族でも楽しめます」'],
+    aiSummary: 'ファミリー層にも刺さる案内が有効でした。',
+    essentialKnowledge: {
+      overview: '大正時代を舞台にした人気アニメ。',
+      mainCharacters: ['竈門炭治郎', '竈門禰豆子', '我妻善逸'],
+      fanBase: ['幅広い年齢層', 'ファミリー層が多い'],
+      precautions: ['家族連れへの配慮', '作品理解を示す'],
+      servicePoints: ['限定性の訴求', '丁寧な案内'],
+      officialSiteUrl: 'https://kimetsu.com/anime'
+    }
   },
   {
-    id: '5',
-    name: 'スプリングセール2024',
-    description: '春の大型セールイベント。新生活応援キャンペーン',
+    id: 'spyfamily',
+    name: 'SPY×FAMILY アーニャと一緒に（ダミー）',
+    description: '体験型イベント。フォトスポットと限定グッズが登場。',
     startDate: new Date('2024-03-01'),
-    endDate: new Date('2024-03-31'),
+    endDate: new Date('2024-04-01'),
     status: 'active',
-    tags: ['#スプリングセール', '#新生活', '#大型セール', '#全店舗'],
-    totalPosts: 22,
-    totalViews: 892,
-    totalReactions: 156,
-    stores: ['全店舗'],
-    bestPractices: mockCommunityPosts.slice(1, 3),
-    successPatterns: [
-      '新生活需要を捉えた積極的な提案',
-      'セール特典とカード特典の組み合わせ訴求',
-      '購買意欲の高いお客様への効果的なアプローチ'
-    ],
-    keyPhrases: [
-      '「新生活の準備にカードがあると便利ですよ」',
-      '「セール価格からさらにポイント還元があります」',
-      '「今後のお買い物でずっとお得になります」'
-    ],
-    aiSummary: '新生活シーズンは購買意欲が高まる時期です。セール特典とカード特典を組み合わせた提案が効果的で、長期的なメリットを伝えることが成功のポイントです。'
+    tags: ['#SPYFAMILY', '#体験型', '#フォトスポット', '#限定グッズ'],
+    totalPosts: 8,
+    totalViews: 389,
+    totalReactions: 67,
+    stores: ['渋谷店', '池袋店'],
+    bestPractices: [],
+    successPatterns: ['写真映えの案内', 'SNS投稿の促進'],
+    keyPhrases: ['「写真映えスポットあります」', '「SNS投稿で特典」'],
+    aiSummary: '体験型の魅力を伝える案内が効果的でした。',
+    essentialKnowledge: {
+      overview: 'スパイ一家のコメディ作品。',
+      mainCharacters: ['ロイド', 'アーニャ', 'ヨル'],
+      fanBase: ['若年層中心', 'SNS利用が多い'],
+      precautions: ['撮影ルールの案内', '家族連れへの配慮'],
+      servicePoints: ['体験の魅力訴求', 'SNS連動'],
+      officialSiteUrl: 'https://spy-family.net/'
+    }
   },
   {
-    id: '6',
-    name: '推しの子コラボフェア',
-    description: '話題沸騰中「推しの子」とのコラボレーションイベント',
-    startDate: new Date('2024-02-15'),
+    id: 'onepiece',
+    name: 'ONE PIECE FILM RED（ダミー）',
+    description: '映画公開記念イベント。限定グッズと特別展示。',
+    startDate: new Date('2024-02-10'),
+    endDate: new Date('2024-03-10'),
+    status: 'active',
+    tags: ['#ONEPIECE', '#映画', '#限定グッズ'],
+    totalPosts: 18,
+    totalViews: 723,
+    totalReactions: 128,
+    stores: ['渋谷店', '新宿店', '池袋店', '横浜店'],
+    bestPractices: [],
+    successPatterns: ['映画話題の共有', '限定グッズの案内'],
+    keyPhrases: ['「映画ご覧になりました？」', '「今だけの展示です」'],
+    aiSummary: '話題性を活かした声かけが効果的でした。',
+    essentialKnowledge: {
+      overview: '海賊王を目指す冒険作品。',
+      mainCharacters: ['ルフィ', 'ゾロ', 'ナミ'],
+      fanBase: ['全年齢層に人気', 'ファミリー層も多い'],
+      precautions: ['作品理解を示す', '家族連れへの配慮'],
+      servicePoints: ['話題性の共有', '限定感の訴求'],
+      officialSiteUrl: 'https://one-piece.com/'
+    }
+  },
+  {
+    id: 'oshi',
+    name: '【推しの子】POPUP STORE（ダミー）',
+    description: 'ポップアップストア。限定グッズとフォトスポット。',
+    startDate: new Date('2024-03-05'),
+    endDate: new Date('2024-04-05'),
+    status: 'active',
+    tags: ['#推しの子', '#ポップアップ', '#限定グッズ'],
+    totalPosts: 9,
+    totalViews: 445,
+    totalReactions: 76,
+    stores: ['渋谷店', '新宿店'],
+    bestPractices: [],
+    successPatterns: ['アイドル要素への共感', 'SNS映えの案内'],
+    keyPhrases: ['「推し活グッズあります」', '「写真スポットもあります」'],
+    aiSummary: '推し活目線の案内が好評でした。',
+    essentialKnowledge: {
+      overview: '芸能界を舞台にした話題作。',
+      mainCharacters: ['星野アイ', 'アクア', 'ルビー'],
+      fanBase: ['若年層中心', 'SNS利用が多い'],
+      precautions: ['作品理解を示す', '撮影ルールの案内'],
+      servicePoints: ['推し活の共感', '限定感の訴求'],
+      officialSiteUrl: 'https://ichigoproduction.com/'
+    }
+  },
+  {
+    id: 'tokyo-revengers',
+    name: '東京リベンジャーズ 聖夜決戦編（ダミー）',
+    description: '限定グッズと特別展示のイベント。',
+    startDate: new Date('2024-02-20'),
+    endDate: new Date('2024-03-20'),
+    status: 'completed',
+    tags: ['#東京リベンジャーズ', '#限定グッズ'],
+    totalPosts: 7,
+    totalViews: 334,
+    totalReactions: 58,
+    stores: ['池袋店', '新宿店'],
+    bestPractices: [],
+    successPatterns: ['若年層への共感', '限定感の強調'],
+    keyPhrases: ['「今だけの展示です」', '「限定グッズあります」'],
+    aiSummary: '限定感を軸にした提案が効果的でした。',
+    essentialKnowledge: {
+      overview: 'タイムリープを描く人気作。',
+      mainCharacters: ['花垣武道', '佐野万次郎', '龍宮寺堅'],
+      fanBase: ['若年層中心', '男性ファンが多い'],
+      precautions: ['作品理解を示す', '過度な煽りは避ける'],
+      servicePoints: ['共感の声かけ', '限定性の訴求'],
+      officialSiteUrl: 'https://tokyo-revengers-anime.com/'
+    }
+  },
+  {
+    id: 'chainsaw',
+    name: 'チェンソーマン POPUP STORE（ダミー）',
+    description: '限定グッズと特別展示のポップアップ。',
+    startDate: new Date('2024-03-15'),
     endDate: new Date('2024-04-15'),
     status: 'active',
-    tags: ['#推しの子', '#アニメコラボ', '#若年層', '#SNS映え'],
-    totalPosts: 18,
-    totalViews: 678,
-    totalReactions: 134,
-    stores: ['アニメイト渋谷店', 'アニメイト新宿店', 'アニメイト池袋店', 'アニメイト秋葉原店'],
+    tags: ['#チェンソーマン', '#ポップアップ', '#限定グッズ'],
+    totalPosts: 6,
+    totalViews: 289,
+    totalReactions: 45,
+    stores: ['渋谷店', '池袋店'],
     bestPractices: [],
-    successPatterns: [
-      'SNS世代を意識したデジタル特典の訴求',
-      'キャラクター人気を活用した声かけ',
-      '写真撮影スポットでの自然な接客'
-    ],
-    keyPhrases: [
-      '「推しの子ファンの方に大人気の特典です」',
-      '「カード限定のデジタル特典もありますよ」',
-      '「SNSでシェアすると特典があります」'
-    ],
-    aiSummary: 'SNS世代が多い若年層イベントでは、デジタル特典や限定感が重要です。写真撮影などの体験と組み合わせた自然なアプローチが効果的です。'
+    successPatterns: ['作品の魅力共有', '限定感の強調'],
+    keyPhrases: ['「今だけの展示です」', '「限定グッズ人気です」'],
+    aiSummary: '作品の魅力共有が効果的でした。',
+    essentialKnowledge: {
+      overview: '悪魔と戦う少年のダークファンタジー。',
+      mainCharacters: ['デンジ', 'パワー', 'マキマ'],
+      fanBase: ['若年層中心', '男性ファンが多い'],
+      precautions: ['表現の配慮', '作品理解を示す'],
+      servicePoints: ['共感の声かけ', '限定感の訴求'],
+      officialSiteUrl: 'https://chainsawman.dog/'
+    }
   },
   {
-    id: '7',
-    name: 'ファミリーフェスタ',
-    description: '家族連れ向けの大型イベント。親子で楽しめる企画満載',
-    startDate: new Date('2024-03-10'),
-    endDate: new Date('2024-03-24'),
-    status: 'active',
-    tags: ['#ファミリー', '#親子', '#キッズ', '#体験型'],
-    totalPosts: 10,
-    totalViews: 345,
-    totalReactions: 67,
-    stores: ['マルイ渋谷店', 'マルイ新宿店', 'マルイ有楽町店'],
+    id: 'bocchi',
+    name: 'ぼっち・ざ・ろっく！（ダミー）',
+    description: 'ライブ映像上映と限定グッズのイベント。',
+    startDate: new Date('2024-04-15'),
+    endDate: new Date('2024-05-15'),
+    status: 'upcoming',
+    tags: ['#ぼっちざろっく', '#音楽', '#ライブ'],
+    totalPosts: 5,
+    totalViews: 201,
+    totalReactions: 29,
+    stores: ['渋谷店', '新宿店'],
     bestPractices: [],
-    successPatterns: [
-      '家族全体のメリットを訴求する提案',
-      '子育て世代向けの特典説明',
-      '安心感を与える丁寧な説明'
-    ],
-    keyPhrases: [
-      '「お子様向けの特典もご用意しています」',
-      '「家族カードもお得に作れます」',
-      '「次回のご来店時にもポイントが使えます」'
-    ],
-    aiSummary: 'ファミリー層には、家族全体のメリットと安心感の訴求が重要です。子育て世代向けの特典を丁寧に説明することで信頼を得られます。'
-  },
-  // 2023年のイベント
-  {
-    id: '8',
-    name: '鬼滅の刃フェア2023',
-    description: '社会現象となったアニメ「鬼滅の刃」とのコラボイベント',
-    startDate: new Date('2023-10-01'),
-    endDate: new Date('2023-11-30'),
-    status: 'completed',
-    tags: ['#鬼滅の刃', '#アニメコラボ', '#限定グッズ'],
-    totalPosts: 45,
-    totalViews: 2100,
-    totalReactions: 410,
-    stores: ['札幌店', '仙台店', '東京店', '名古屋店', '大阪店', '福岡店'],
-    bestPractices: [],
-    successPatterns: ['キャラクター人気を活用した声かけ', '限定感の演出', 'ファン心理の理解'],
-    keyPhrases: ['「推しキャラのグッズ残りわずかです」', '「次回入荷は未定です」'],
-    aiSummary: '鬼滅の刃ブームを活用した成功事例が多数。限定感の訴求が効果的でした。'
+    successPatterns: ['音楽好きへの共感', 'ライブ体験の案内'],
+    keyPhrases: ['「ライブ映像あります」', '「限定グッズもあります」'],
+    aiSummary: '音楽体験の魅力を伝える案内が効果的です。',
+    essentialKnowledge: {
+      overview: '音楽をテーマにした青春アニメ。',
+      mainCharacters: ['後藤ひとり', '伊地知虹夏', '山田リョウ'],
+      fanBase: ['若年層中心', '音楽ファンが多い'],
+      precautions: ['作品理解を示す', '落ち着いた案内'],
+      servicePoints: ['共感の声かけ', '体験の案内'],
+      officialSiteUrl: 'https://bocchi.rocks/'
+    }
   },
   {
-    id: '9',
-    name: '原神×大阪コラボフェスタ2023',
-    description: '世界的人気ゲーム「原神」とのコラボレーションイベント',
-    startDate: new Date('2023-07-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#原神', '#ゲームコラボ', '#大阪限定', '#限定グッズ'],
-    totalPosts: 32,
-    totalViews: 890,
-    totalReactions: 145,
-    stores: ['大阪梅田店', '大阪難波店', '大阪天王寺店'],
-    bestPractices: [],
-    successPatterns: ['ゲームファンへの共感アプローチ', 'キャラクターグッズの限定感演出'],
-    keyPhrases: ['「推しキャラのグッズ入荷しました」', '「原神ファンの方に大人気です」'],
-    aiSummary: 'ゲームファン層への理解を示した提案が効果的でした。'
-  },
-  {
-    id: '10',
-    name: 'ホロライブVtuberハロウィンフェスタ2023',
-    description: '人気Vtuberグループ「ホロライブ」とのハロウィンコラボ',
-    startDate: new Date('2023-10-01'),
-    endDate: new Date('2023-10-31'),
-    status: 'completed',
-    tags: ['#ホロライブ', '#Vtuber', '#ハロウィン', '#限定グッズ'],
-    totalPosts: 28,
-    totalViews: 756,
-    totalReactions: 132,
-    stores: ['全店舗'],
-    bestPractices: [],
-    successPatterns: ['Vtuberファンへの丁寧な対応', 'コラボ限定特典の訴求'],
-    keyPhrases: ['「推しの限定グッズありますよ」', '「ハロウィン限定デザインです」'],
-    aiSummary: 'Vtuberファン層への理解を示した接客が成功のポイント。'
-  },
-  {
-    id: '11',
-    name: '初音ミク×雪ミクフェア2023',
-    description: '北海道限定「雪ミク」とのコラボレーションイベント',
-    startDate: new Date('2023-12-01'),
-    endDate: new Date('2024-02-28'),
-    status: 'completed',
-    tags: ['#初音ミク', '#雪ミク', '#Vocaloid', '#北海道限定'],
-    totalPosts: 19,
-    totalViews: 521,
-    totalReactions: 98,
-    stores: ['札幌店', '札幌ステラプレイス店'],
-    bestPractices: [],
-    successPatterns: ['地域限定キャラクターの活用', 'ボカロファンへの共感'],
-    keyPhrases: ['「雪ミク限定グッズです」', '「北海道でしか買えません」'],
-    aiSummary: '地域限定キャラクターの特別感を活かした提案が成功しています。'
-  },
-  {
-    id: '12',
-    name: 'にじさんじ×名古屋コラボフェア2023',
-    description: '大人気Vtuberグループ「にじさんじ」とのコラボイベント',
-    startDate: new Date('2023-09-01'),
-    endDate: new Date('2023-09-30'),
-    status: 'completed',
-    tags: ['#にじさんじ', '#Vtuber', '#名古屋限定', '#限定グッズ'],
-    totalPosts: 24,
-    totalViews: 612,
-    totalReactions: 118,
-    stores: ['名古屋店', '名古屋栄店'],
-    bestPractices: [],
-    successPatterns: ['Vtuberファンコミュニティへの理解', '限定感の演出'],
-    keyPhrases: ['「推しライバーのグッズあります」', '「名古屋限定デザインです」'],
-    aiSummary: 'Vtuberファンの熱量を理解した提案が効果的でした。'
-  },
-  // 2022年のイベント
-  {
-    id: '13',
-    name: '東京リベンジャーズ×春フェア2022',
-    description: '人気アニメ「東京卍リベンジャーズ」とのコラボイベント',
-    startDate: new Date('2022-03-01'),
-    endDate: new Date('2022-04-30'),
-    status: 'completed',
-    tags: ['#東京リベンジャーズ', '#アニメコラボ', '#春', '#限定グッズ'],
-    totalPosts: 38,
-    totalViews: 1245,
-    totalReactions: 256,
-    stores: ['渋谷店', '新宿店', '池袋店', '有楽町店'],
-    bestPractices: [],
-    successPatterns: ['アニメファンへの共感的アプローチ', 'キャラクター人気の活用'],
-    keyPhrases: ['「マイキーのグッズ入荷しました」', '「限定デザインです」'],
-    aiSummary: '若年層に人気のアニメを活用した提案が成功しています。'
-  },
-  {
-    id: '14',
-    name: 'モンスターハンター×福岡コラボ2022',
-    description: '大人気ゲーム「モンスターハンター」とのコラボイベント',
-    startDate: new Date('2022-05-01'),
-    endDate: new Date('2022-05-31'),
-    status: 'completed',
-    tags: ['#モンハン', '#ゲームコラボ', '#福岡限定', '#限定グッズ'],
-    totalPosts: 22,
-    totalViews: 689,
-    totalReactions: 134,
-    stores: ['福岡天神店', '福岡博多店'],
-    bestPractices: [],
-    successPatterns: ['ゲームファンへの理解を示す', 'ハンターへの共感'],
-    keyPhrases: ['「モンハン好きの方に人気です」', '「限定武器グッズあります」'],
-    aiSummary: 'ゲームファン層への理解を示した接客が効果的でした。'
-  },
-  {
-    id: '15',
-    name: 'ラブライブ!サンシャイン!!×神奈川2022',
-    description: '人気アニメ「ラブライブ!サンシャイン!!」とのコラボ',
-    startDate: new Date('2022-07-15'),
-    endDate: new Date('2022-08-31'),
-    status: 'completed',
-    tags: ['#ラブライブ', '#アニメコラボ', '#神奈川', '#夏'],
-    totalPosts: 27,
-    totalViews: 743,
-    totalReactions: 156,
-    stores: ['横浜店', '川崎店'],
-    bestPractices: [],
-    successPatterns: ['アニメ聖地巡礼客への対応', 'キャラクター愛の尊重'],
-    keyPhrases: ['「推しメンのグッズあります」', '「限定缶バッジ入荷しました」'],
-    aiSummary: 'アニメファンの聖地巡礼需要を捉えた提案が成功。'
-  },
-  {
-    id: '16',
-    name: 'ポケモン×千葉オータムフェア2022',
-    description: '大人気キャラクター「ポケモン」とのコラボイベント',
-    startDate: new Date('2022-10-01'),
-    endDate: new Date('2022-11-30'),
-    status: 'completed',
-    tags: ['#ポケモン', '#キャラクターコラボ', '#千葉', '#秋'],
-    totalPosts: 18,
-    totalViews: 456,
-    totalReactions: 89,
-    stores: ['千葉店', '船橋店'],
-    bestPractices: [],
-    successPatterns: ['幅広い年齢層へのアプローチ', 'ファミリー層への提案'],
-    keyPhrases: ['「ピカチュウグッズ大人気です」', '「お子様にも喜ばれます」'],
-    aiSummary: '全年齢層に人気のキャラクターを活用した提案が効果的でした。'
-  },
-  {
-    id: '17',
-    name: 'SPY×FAMILYコラボ2022',
-    description: '大人気アニメ「SPY×FAMILY」とのコラボイベント',
-    startDate: new Date('2022-06-01'),
-    endDate: new Date('2022-07-31'),
-    status: 'completed',
-    tags: ['#SPY×FAMILY', '#アニメコラボ', '#限定グッズ'],
-    totalPosts: 52,
-    totalViews: 2340,
-    totalReactions: 489,
-    stores: ['全店舗'],
-    bestPractices: [],
-    successPatterns: ['家族層への訴求', 'キャラクターグッズの限定感演出'],
-    keyPhrases: ['「アーニャのグッズ大人気です」'],
-    aiSummary: '家族で楽しめるアニメという特性を活かした提案が成功。'
-  },
-  // 2024年追加イベント（様々な都道府県）
-  {
-    id: '18',
-    name: 'ウマ娘×埼玉スプリングフェア2024',
-    description: '大人気ゲーム「ウマ娘」とのコラボイベント',
+    id: 'blue-lock',
+    name: 'ブルーロック エゴイスト覚醒（ダミー）',
+    description: '体験コーナーと限定グッズのイベント。',
     startDate: new Date('2024-04-01'),
-    endDate: new Date('2024-04-30'),
+    endDate: new Date('2024-05-01'),
     status: 'upcoming',
-    tags: ['#ウマ娘', '#ゲームコラボ', '#埼玉', '#春'],
-    totalPosts: 0,
-    totalViews: 0,
-    totalReactions: 0,
-    stores: ['大宮店', '川越店', '浦和店'],
+    tags: ['#ブルーロック', '#サッカー', '#体験型'],
+    totalPosts: 4,
+    totalViews: 178,
+    totalReactions: 23,
+    stores: ['新宿店', '渋谷店'],
     bestPractices: [],
-    successPatterns: [],
-    keyPhrases: [],
-    aiSummary: ''
-  },
-  {
-    id: '19',
-    name: 'Fate×京都桜フェスティバル2024',
-    description: 'アニメ・ゲーム「Fate」シリーズとのコラボ',
-    startDate: new Date('2024-03-20'),
-    endDate: new Date('2024-04-10'),
-    status: 'upcoming',
-    tags: ['#Fate', '#アニメコラボ', '#京都', '#春'],
-    totalPosts: 0,
-    totalViews: 0,
-    totalReactions: 0,
-    stores: ['京都店', '京都河原町店'],
-    bestPractices: [],
-    successPatterns: [],
-    keyPhrases: [],
-    aiSummary: ''
-  },
-  {
-    id: '20',
-    name: 'ガンダム×広島サマーフェア2023',
-    description: '人気アニメ「機動戦士ガンダム」とのコラボイベント',
-    startDate: new Date('2023-08-01'),
-    endDate: new Date('2023-08-15'),
-    status: 'completed',
-    tags: ['#ガンダム', '#アニメコラボ', '#広島', '#夏'],
-    totalPosts: 16,
-    totalViews: 432,
-    totalReactions: 87,
-    stores: ['広島店', '広島八丁堀店'],
-    bestPractices: [],
-    successPatterns: ['幅広い世代のガンダムファンへの対応'],
-    keyPhrases: ['「ガンプラ好きの方に人気です」', '「限定デザインです」'],
-    aiSummary: '幅広い世代に人気のアニメを活用した提案が成功しました。'
-  },
-  {
-    id: '21',
-    name: 'ブルーアーカイブ×仙台コラボ2023',
-    description: '人気スマホゲーム「ブルーアーカイブ」とのコラボイベント',
-    startDate: new Date('2023-08-06'),
-    endDate: new Date('2023-08-08'),
-    status: 'completed',
-    tags: ['#ブルアカ', '#ゲームコラボ', '#仙台', '#夏'],
-    totalPosts: 21,
-    totalViews: 578,
-    totalReactions: 112,
-    stores: ['仙台店', '仙台泉店'],
-    bestPractices: [],
-    successPatterns: ['スマホゲームファンへの理解', '推しキャラへの共感'],
-    keyPhrases: ['「先生、限定グッズあります」', '「推し生徒のグッズ入荷しました」'],
-    aiSummary: 'ゲームコミュニティへの理解を示した提案が好評でした。'
-  },
-  {
-    id: '22',
-    name: 'ワンピース×沖縄サマーフェア2023',
-    description: '大人気アニメ「ONE PIECE」とのコラボイベント',
-    startDate: new Date('2023-06-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#ワンピース', '#アニメコラボ', '#沖縄', '#夏'],
-    totalPosts: 25,
-    totalViews: 692,
-    totalReactions: 141,
-    stores: ['那覇店'],
-    bestPractices: [],
-    successPatterns: ['幅広い世代への対応', 'キャラクター人気の活用'],
-    keyPhrases: ['「麦わらの一味グッズあります」', '「限定デザインです」'],
-    aiSummary: '国民的アニメを活用した提案が成功しています。'
-  },
-  {
-    id: '23',
-    name: 'アイドルマスター×神戸フェア2022',
-    description: '人気ゲーム「アイドルマスター」シリーズとのコラボ',
-    startDate: new Date('2022-10-15'),
-    endDate: new Date('2022-10-31'),
-    status: 'completed',
-    tags: ['#アイマス', '#ゲームコラボ', '#神戸', '#秋'],
-    totalPosts: 29,
-    totalViews: 812,
-    totalReactions: 167,
-    stores: ['神戸店', '神戸三宮店'],
-    bestPractices: [],
-    successPatterns: ['プロデューサーへの共感', '推しアイドルへの理解'],
-    keyPhrases: ['「担当アイドルのグッズありますよ」', '「限定デザインです」'],
-    aiSummary: 'アイドルゲームファンへの理解を示した提案が成功しています。'
-  },
-  {
-    id: '24',
-    name: '艦これ×横浜コラボフェス2023',
-    description: '人気ゲーム「艦隊これくしょん」とのコラボイベント',
-    startDate: new Date('2023-02-01'),
-    endDate: new Date('2023-02-28'),
-    status: 'completed',
-    tags: ['#艦これ', '#ゲームコラボ', '#横浜', '#冬'],
-    totalPosts: 33,
-    totalViews: 945,
-    totalReactions: 189,
-    stores: ['横浜店'],
-    bestPractices: [],
-    successPatterns: ['提督への丁寧な対応', '艦娘人気の活用'],
-    keyPhrases: ['「提督、嫁艦のグッズあります」', '「限定グッズです」'],
-    aiSummary: 'ゲームファンへの理解を示した接客が効果的でした。'
-  },
-  {
-    id: '25',
-    name: 'ちいかわ×静岡コラボ2023',
-    description: '大人気キャラクター「ちいかわ」とのコラボイベント',
-    startDate: new Date('2023-07-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#ちいかわ', '#キャラクターコラボ', '#静岡', '#夏'],
-    totalPosts: 17,
-    totalViews: 467,
-    totalReactions: 91,
-    stores: ['静岡店'],
-    bestPractices: [],
-    successPatterns: ['癒し系キャラの人気活用', '幅広い層へのアプローチ'],
-    keyPhrases: ['「ちいかわグッズ入荷しました」', '「限定デザインです」'],
-    aiSummary: '癒し系キャラクターの人気を活用した提案が成功。'
-  },
-  {
-    id: '26',
-    name: 'プロジェクトセカイ×長野ウィンターフェア2023',
-    description: '人気リズムゲーム「プロジェクトセカイ」とのコラボ',
-    startDate: new Date('2023-12-01'),
-    endDate: new Date('2024-03-31'),
-    status: 'completed',
-    tags: ['#プロセカ', '#ゲームコラボ', '#長野', '#冬'],
-    totalPosts: 22,
-    totalViews: 634,
-    totalReactions: 128,
-    stores: ['長野店'],
-    bestPractices: [],
-    successPatterns: ['若年層への理解', 'キャラクター人気の活用'],
-    keyPhrases: ['「推しキャラのグッズあります」', '「プロセカファンに人気です」'],
-    aiSummary: '音楽ゲームファンへの提案が成功しています。'
-  },
-  {
-    id: '27',
-    name: '崩壊スターレイル×金沢コラボ2022',
-    description: '人気RPGゲーム「崩壊:スターレイル」とのコラボイベント',
-    startDate: new Date('2022-11-01'),
-    endDate: new Date('2022-11-30'),
-    status: 'completed',
-    tags: ['#スターレイル', '#ゲームコラボ', '#金沢', '#秋'],
-    totalPosts: 14,
-    totalViews: 389,
-    totalReactions: 76,
-    stores: ['金沢店'],
-    bestPractices: [],
-    successPatterns: ['中国発ゲームファンへの対応', 'キャラクター人気の活用'],
-    keyPhrases: ['「推しキャラのグッズあります」', '「限定デザインです」'],
-    aiSummary: 'グローバルゲームファンへの提案が成功。'
-  },
-  {
-    id: '28',
-    name: 'あんさんぶるスターズ×新潟フェア2023',
-    description: '人気アイドルゲーム「あんさんぶるスターズ!」とのコラボ',
-    startDate: new Date('2023-10-01'),
-    endDate: new Date('2023-11-30'),
-    status: 'completed',
-    tags: ['#あんスタ', '#ゲームコラボ', '#新潟', '#秋'],
-    totalPosts: 19,
-    totalViews: 512,
-    totalReactions: 103,
-    stores: ['新潟店'],
-    bestPractices: [],
-    successPatterns: ['アイドルゲームファンへの理解', '推しユニットへの共感'],
-    keyPhrases: ['「推しユニットのグッズあります」', '「担当のグッズ入荷しました」'],
-    aiSummary: '女性向けアイドルゲームファンへの提案が効果的でした。'
-  },
-  {
-    id: '29',
-    name: 'すとぷり×岡山コラボフェスティバル2023',
-    description: '人気歌い手グループ「すとぷり」とのコラボイベント',
-    startDate: new Date('2023-08-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#すとぷり', '#音楽', '#岡山', '#夏'],
-    totalPosts: 16,
-    totalViews: 445,
-    totalReactions: 88,
-    stores: ['岡山店'],
-    bestPractices: [],
-    successPatterns: ['歌い手ファンへの理解', '若年層への対応'],
-    keyPhrases: ['「すとぷりグッズ入荷しました」', '「推しカラーのグッズあります」'],
-    aiSummary: '音楽グループファンへの提案が好評でした。'
-  },
-  {
-    id: '30',
-    name: 'ツイステッドワンダーランド×熊本2022',
-    description: '人気ゲーム「ツイステッドワンダーランド」とのコラボ',
-    startDate: new Date('2022-09-01'),
-    endDate: new Date('2022-09-30'),
-    status: 'completed',
-    tags: ['#ツイステ', '#ゲームコラボ', '#熊本', '#秋'],
-    totalPosts: 31,
-    totalViews: 867,
-    totalReactions: 178,
-    stores: ['熊本店'],
-    bestPractices: [],
-    successPatterns: ['女性向けゲームファンへの対応', '寮別グッズの提案'],
-    keyPhrases: ['「推し寮のグッズあります」', '「限定デザインです」'],
-    aiSummary: 'ディズニー系ゲームファンへの提案が成功。'
-  },
-  {
-    id: '31',
-    name: 'バーチャルYouTuber×群馬ウィンターフェア2023',
-    description: '人気VTuber事務所とのコラボレーションイベント',
-    startDate: new Date('2023-11-01'),
-    endDate: new Date('2024-01-31'),
-    status: 'completed',
-    tags: ['#VTuber', '#配信者', '#群馬', '#冬'],
-    totalPosts: 13,
-    totalViews: 376,
-    totalReactions: 74,
-    stores: ['高崎店'],
-    bestPractices: [],
-    successPatterns: ['VTuberファンへの理解', '配信文化への共感'],
-    keyPhrases: ['「推しの限定グッズあります」', '「配信で紹介されたグッズです」'],
-    aiSummary: 'VTuber文化への理解を示した提案が成功しています。'
-  },
-  {
-    id: '32',
-    name: 'スプラトゥーン3×栃木フェア2024',
-    description: '人気ゲーム「スプラトゥーン3」とのコラボイベント',
-    startDate: new Date('2024-01-01'),
-    endDate: new Date('2024-02-29'),
-    status: 'active',
-    tags: ['#スプラトゥーン', '#任天堂', '#栃木', '#冬春'],
-    totalPosts: 11,
-    totalViews: 298,
-    totalReactions: 59,
-    stores: ['宇都宮店'],
-    bestPractices: [],
-    successPatterns: ['任天堂ファンへの対応', 'ファミリー層への提案'],
-    keyPhrases: ['「イカグッズ入荷しました」', '「お子様に大人気です」'],
-    aiSummary: '任天堂ゲームファンへの提案が効果的。'
-  },
-  {
-    id: '33',
-    name: 'アークナイツ×茨城ウィンターフェア2023',
-    description: '人気タワーディフェンスゲーム「アークナイツ」とのコラボ',
-    startDate: new Date('2023-12-01'),
-    endDate: new Date('2023-12-31'),
-    status: 'completed',
-    tags: ['#アークナイツ', '#ゲームコラボ', '#茨城', '#年末'],
-    totalPosts: 26,
-    totalViews: 723,
-    totalReactions: 149,
-    stores: ['つくば店'],
-    bestPractices: [],
-    successPatterns: ['戦略ゲームファンへの対応', 'オペレーター人気の活用'],
-    keyPhrases: ['「推しオペレーターのグッズあります」', '「限定デザインです」'],
-    aiSummary: 'タワーディフェンスゲームファンへの提案が成功しています。'
-  },
-  {
-    id: '34',
-    name: 'エヴァンゲリオン×山梨コラボ2023',
-    description: '人気アニメ「新世紀エヴァンゲリオン」とのコラボイベント',
-    startDate: new Date('2023-07-15'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#エヴァンゲリオン', '#アニメコラボ', '#山梨', '#夏'],
-    totalPosts: 20,
-    totalViews: 567,
-    totalReactions: 115,
-    stores: ['甲府店'],
-    bestPractices: [],
-    successPatterns: ['幅広い世代のファンへの対応', 'レトロアニメファンへの共感'],
-    keyPhrases: ['「エヴァグッズ入荷しました」', '「初号機カラーの限定デザインです」'],
-    aiSummary: '世代を超えて愛されるアニメの活用が効果的でした。'
-  },
-  {
-    id: '35',
-    name: 'ラブライブ!スーパースター!!×愛媛2023',
-    description: '人気アイドルアニメ「ラブライブ!スーパースター!!」とのコラボ',
-    startDate: new Date('2023-11-01'),
-    endDate: new Date('2023-12-31'),
-    status: 'completed',
-    tags: ['#ラブライブ', '#アニメコラボ', '#愛媛', '#冬'],
-    totalPosts: 15,
-    totalViews: 423,
-    totalReactions: 85,
-    stores: ['松山店'],
-    bestPractices: [],
-    successPatterns: ['アイドルアニメファンへの理解', '推しメンへの共感'],
-    keyPhrases: ['「推しメンのグッズあります」', '「限定缶バッジ入荷しました」'],
-    aiSummary: 'アイドルアニメファンへの提案が成功。'
-  },
-  {
-    id: '36',
-    name: 'バンドリ!×香川コラボフェア2022',
-    description: '人気音楽ゲーム「BanG Dream!」とのコラボイベント',
-    startDate: new Date('2022-10-01'),
-    endDate: new Date('2022-10-31'),
-    status: 'completed',
-    tags: ['#バンドリ', '#ゲームコラボ', '#香川', '#秋'],
-    totalPosts: 18,
-    totalViews: 498,
-    totalReactions: 97,
-    stores: ['高松店'],
-    bestPractices: [],
-    successPatterns: ['音楽ゲームファンへの理解', 'バンド別グッズの提案'],
-    keyPhrases: ['「推しバンドのグッズあります」', '「ライブ会場限定デザインです」'],
-    aiSummary: '音楽ゲームファンへの提案が好評でした。'
-  },
-  {
-    id: '37',
-    name: 'うたの☆プリンスさまっ♪×徳島2023',
-    description: '人気女性向けゲーム「うたプリ」とのコラボイベント',
-    startDate: new Date('2023-08-12'),
-    endDate: new Date('2023-08-15'),
-    status: 'completed',
-    tags: ['#うたプリ', '#ゲームコラボ', '#徳島', '#夏'],
-    totalPosts: 17,
-    totalViews: 487,
-    totalReactions: 94,
-    stores: ['徳島店'],
-    bestPractices: [],
-    successPatterns: ['女性向けゲームファンへの対応', 'アイドル別グッズの提案'],
-    keyPhrases: ['「推しアイドルのグッズあります」', '「限定デザインです」'],
-    aiSummary: '女性向けアイドルゲームファンへの提案が成功。'
-  },
-  {
-    id: '38',
-    name: 'FGO×高知サマーフェア2023',
-    description: '人気ゲーム「Fate/Grand Order」とのコラボイベント',
-    startDate: new Date('2023-08-09'),
-    endDate: new Date('2023-08-12'),
-    status: 'completed',
-    tags: ['#FGO', '#ゲームコラボ', '#高知', '#夏'],
-    totalPosts: 16,
-    totalViews: 454,
-    totalReactions: 89,
-    stores: ['高知店'],
-    bestPractices: [],
-    successPatterns: ['マスターへの丁寧な対応', 'サーヴァント人気の活用'],
-    keyPhrases: ['「推しサーヴァントのグッズあります」', '「マスターに人気です」'],
-    aiSummary: 'RPGゲームファンへの提案が効果的でした。'
-  },
-  {
-    id: '39',
-    name: 'ヒプノシスマイク×佐賀コラボ2023',
-    description: '人気音楽プロジェクト「ヒプノシスマイク」とのコラボ',
-    startDate: new Date('2023-11-01'),
-    endDate: new Date('2023-11-05'),
-    status: 'completed',
-    tags: ['#ヒプマイ', '#音楽コンテンツ', '#佐賀', '#秋'],
-    totalPosts: 14,
-    totalViews: 398,
-    totalReactions: 78,
-    stores: ['佐賀店'],
-    bestPractices: [],
-    successPatterns: ['女性向けコンテンツファンへの理解', 'ディビジョン別の提案'],
-    keyPhrases: ['「推しディビジョンのグッズあります」', '「限定デザインです」'],
-    aiSummary: '音楽プロジェクトファンへの提案が成功しました。'
-  },
-  {
-    id: '40',
-    name: '刀剣乱舞×長崎ウィンターフェア2023',
-    description: '人気ゲーム「刀剣乱舞」とのコラボイベント',
-    startDate: new Date('2023-01-22'),
-    endDate: new Date('2023-02-05'),
-    status: 'completed',
-    tags: ['#刀剣乱舞', '#ゲームコラボ', '#長崎', '#冬'],
-    totalPosts: 23,
-    totalViews: 645,
-    totalReactions: 132,
-    stores: ['長崎店'],
-    bestPractices: [],
-    successPatterns: ['女性向けゲームファンへの対応', '推し刀剣への理解'],
-    keyPhrases: ['「推し刀のグッズあります」', '「審神者に人気です」'],
-    aiSummary: '歴史系ゲームファンへの提案が成功。'
-  },
-  {
-    id: '41',
-    name: 'グランブルーファンタジー×大分2023',
-    description: '人気RPGゲーム「グランブルーファンタジー」とのコラボ',
-    startDate: new Date('2023-10-01'),
-    endDate: new Date('2023-12-31'),
-    status: 'completed',
-    tags: ['#グラブル', '#ゲームコラボ', '#大分', '#秋冬'],
-    totalPosts: 19,
-    totalViews: 534,
-    totalReactions: 107,
-    stores: ['大分店'],
-    bestPractices: [],
-    successPatterns: ['RPGゲームファンへの理解', 'キャラクター人気の活用'],
-    keyPhrases: ['「推しキャラのグッズあります」', '「騎空士に人気です」'],
-    aiSummary: 'ソーシャルゲームファンへの提案が効果的でした。'
-  },
-  {
-    id: '42',
-    name: 'とあるシリーズ×宮崎サマーフェア2023',
-    description: '人気ライトノベル「とある」シリーズとのコラボ',
-    startDate: new Date('2023-06-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#とあるシリーズ', '#ライトノベル', '#宮崎', '#夏'],
-    totalPosts: 17,
-    totalViews: 478,
-    totalReactions: 95,
-    stores: ['宮崎店'],
-    bestPractices: [],
-    successPatterns: ['ラノベファンへの理解', 'キャラクター人気の活用'],
-    keyPhrases: ['「御坂美琴グッズ入荷しました」', '「限定デザインです」'],
-    aiSummary: 'ライトノベルファンへの提案が成功しました。'
-  },
-  {
-    id: '43',
-    name: 'アイカツ!×鹿児島コラボフェア2022',
-    description: '人気アイドルゲーム「アイカツ!」とのコラボイベント',
-    startDate: new Date('2022-11-01'),
-    endDate: new Date('2022-11-30'),
-    status: 'completed',
-    tags: ['#アイカツ', '#ゲームコラボ', '#鹿児島', '#秋'],
-    totalPosts: 15,
-    totalViews: 421,
-    totalReactions: 83,
-    stores: ['鹿児島店'],
-    bestPractices: [],
-    successPatterns: ['子供向けコンテンツの家族提案', 'ファミリー層への対応'],
-    keyPhrases: ['「お子様に大人気です」', '「アイドル活動グッズあります」'],
-    aiSummary: 'キッズ向けゲームの家族提案が成功。'
-  },
-  {
-    id: '44',
-    name: 'ヴァイオレット・エヴァーガーデン×青森2023',
-    description: '感動アニメ「ヴァイオレット・エヴァーガーデン」とのコラボ',
-    startDate: new Date('2023-08-02'),
-    endDate: new Date('2023-08-07'),
-    status: 'completed',
-    tags: ['#ヴァイオレット', '#アニメコラボ', '#青森', '#夏'],
-    totalPosts: 21,
-    totalViews: 589,
-    totalReactions: 118,
-    stores: ['青森店'],
-    bestPractices: [],
-    successPatterns: ['感動系アニメファンへの丁寧な対応', '作品の世界観への理解'],
-    keyPhrases: ['「ヴァイオレットグッズ入荷しました」', '「美しいデザインです」'],
-    aiSummary: '感動系アニメファンへの提案が好評でした。'
-  },
-  {
-    id: '45',
-    name: 'バーチャルさんはみている×岩手2023',
-    description: 'VTuber番組「バーチャルさんはみている」とのコラボ',
-    startDate: new Date('2023-09-01'),
-    endDate: new Date('2023-10-31'),
-    status: 'completed',
-    tags: ['#VTuber', '#バーチャル', '#岩手', '#秋'],
-    totalPosts: 13,
-    totalViews: 367,
-    totalReactions: 72,
-    stores: ['盛岡店'],
-    bestPractices: [],
-    successPatterns: ['VTuberファンへの理解', 'バーチャル文化への共感'],
-    keyPhrases: ['「推しVTuberのグッズあります」', '「限定デザインです」'],
-    aiSummary: 'VTuberコンテンツファンへの提案が成功。'
-  },
-  {
-    id: '46',
-    name: 'Re:ゼロから始める異世界生活×秋田2023',
-    description: '人気アニメ「Re:ゼロ」とのコラボイベント',
-    startDate: new Date('2023-08-03'),
-    endDate: new Date('2023-08-06'),
-    status: 'completed',
-    tags: ['#リゼロ', '#アニメコラボ', '#秋田', '#夏'],
-    totalPosts: 16,
-    totalViews: 445,
-    totalReactions: 88,
-    stores: ['秋田店'],
-    bestPractices: [],
-    successPatterns: ['異世界系アニメファンへの理解', 'キャラクター人気の活用'],
-    keyPhrases: ['「レムのグッズ入荷しました」', '「エミリアグッズも人気です」'],
-    aiSummary: '異世界アニメファンへの提案が効果的でした。'
-  },
-  {
-    id: '47',
-    name: 'アズールレーン×山形コラボ2023',
-    description: '人気ゲーム「アズールレーン」とのコラボイベント',
-    startDate: new Date('2023-06-01'),
-    endDate: new Date('2023-07-31'),
-    status: 'completed',
-    tags: ['#アズレン', '#ゲームコラボ', '#山形', '#夏'],
-    totalPosts: 18,
-    totalViews: 501,
-    totalReactions: 101,
-    stores: ['山形店'],
-    bestPractices: [],
-    successPatterns: ['ミリタリーゲームファンへの対応', '艦船擬人化人気の活用'],
-    keyPhrases: ['「推しKAN-SENのグッズあります」', '「指揮官に人気です」'],
-    aiSummary: 'ミリタリー系ゲームファンへの提案が成功しました。'
-  },
-  {
-    id: '48',
-    name: 'プリキュアシリーズ×福島フェア2023',
-    description: '人気アニメ「プリキュア」シリーズとのコラボ',
-    startDate: new Date('2023-07-01'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#プリキュア', '#アニメコラボ', '#福島', '#夏'],
-    totalPosts: 17,
-    totalViews: 473,
-    totalReactions: 94,
-    stores: ['福島店', '郡山店'],
-    bestPractices: [],
-    successPatterns: ['ファミリー層への提案', '子供向けコンテンツの家族対応'],
-    keyPhrases: ['「お子様に大人気のプリキュアグッズです」', '「親子で楽しめます」'],
-    aiSummary: 'キッズ向けアニメの家族提案が効果的でした。'
-  },
-  {
-    id: '49',
-    name: 'ドラゴンクエスト×三重コラボ2023',
-    description: '国民的RPG「ドラゴンクエスト」とのコラボイベント',
-    startDate: new Date('2023-01-01'),
-    endDate: new Date('2023-03-31'),
-    status: 'completed',
-    tags: ['#ドラクエ', '#ゲームコラボ', '#三重', '#新春'],
-    totalPosts: 24,
-    totalViews: 678,
-    totalReactions: 136,
-    stores: ['四日市店', '津店'],
-    bestPractices: [],
-    successPatterns: ['幅広い世代への対応', '国民的ゲームの活用'],
-    keyPhrases: ['「スライムグッズ入荷しました」', '「ドラクエファンに大人気です」'],
-    aiSummary: '国民的RPGを活用した提案が成功しました。'
-  },
-  {
-    id: '50',
-    name: 'けいおん!×滋賀サマーフェスティバル2023',
-    description: '人気アニメ「けいおん!」の聖地滋賀でのコラボイベント',
-    startDate: new Date('2023-07-15'),
-    endDate: new Date('2023-08-31'),
-    status: 'completed',
-    tags: ['#けいおん', '#アニメコラボ', '#滋賀', '#夏'],
-    totalPosts: 16,
-    totalViews: 448,
-    totalReactions: 89,
-    stores: ['大津店', '草津店'],
-    bestPractices: [],
-    successPatterns: ['聖地巡礼客への対応', 'アニメファンへの理解'],
-    keyPhrases: ['「聖地巡礼の思い出にグッズをどうぞ」', '「放課後ティータイムグッズあります」'],
-    aiSummary: '聖地巡礼需要を活用した提案が効果的でした。'
+    successPatterns: ['スポーツファンへの共感', '体験型の案内'],
+    keyPhrases: ['「体験コーナーあります」', '「限定グッズあります」'],
+    aiSummary: '体験型の魅力訴求が効果的です。',
+    essentialKnowledge: {
+      overview: 'サッカーをテーマにした人気作。',
+      mainCharacters: ['潔世一', '蜂楽廻', '千切豹馬'],
+      fanBase: ['若年層中心', 'スポーツファンが多い'],
+      precautions: ['スポーツ理解を示す', '体験ルールの案内'],
+      servicePoints: ['共感の声かけ', '体験の案内'],
+      officialSiteUrl: 'https://bluelock-pr.com/'
+    }
   }
 ];
 
-type ViewMode = 'list' | 'detail';
-type ViewModeWithCreate = 'list' | 'detail' | 'create';
 type FilterStatus = 'all' | 'active' | 'completed' | 'upcoming' | 'my-events';
+
+const HOOK_HELP_HTML = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>口コミの構造</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #f6f7fb; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+    .card { background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+    .pill { background: #eef2ff; color: #4338ca; border: 1px solid #e0e7ff; }
+  </style>
+</head>
+<body class="p-4">
+  <div class="max-w-md mx-auto space-y-4">
+    <div class="card p-4">
+      <p class="text-[11px] font-bold text-gray-400 tracking-widest">説明ページ</p>
+      <h1 class="text-2xl font-extrabold mt-1">口コミの構造</h1>
+      <p class="text-sm text-gray-500 mt-1">話す順番を整えると伝わりやすくなります</p>
+      <div class="mt-3 p-3 rounded-xl pill text-sm font-semibold">フック → 引き込み → カード説明</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold mb-2">カードご案内の流れ</div>
+      <div class="space-y-3 text-sm">
+        <div><span class="font-semibold">1. フック</span>：話を聞く理由を作る</div>
+        <div><span class="font-semibold">2. 引き込み</span>：魅力やメリットを伝える</div>
+        <div><span class="font-semibold">3. カード説明</span>：安心材料で背中を押す</div>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold mb-2">例（イベント案内）</div>
+      <div class="text-sm text-gray-700 space-y-2">
+        <div>フック：｢このイベント、今日だけの特典があるんですが…｣</div>
+        <div>引き込み：｢入会いただくとその場で割引になります｣</div>
+        <div>カード説明：｢入会金・年会費は無料です｣</div>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-sm font-bold mb-2">ポイント</div>
+      <ul class="text-sm text-gray-700 list-disc pl-5 space-y-1">
+        <li>順番を守ると会話がスムーズ</li>
+        <li>相手の反応を見て無理に進めない</li>
+        <li>最後は安心材料で締める</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>`;
 
 export default function Events() {
   const { user, updateUser } = useAuth();
@@ -1001,11 +361,13 @@ export default function Events() {
   const [selectedArea, setSelectedArea] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState<'overview' | 'knowledge' | 'patterns' | 'phrases'>('knowledge');
+  const [showHookHelp, setShowHookHelp] = useState(false);
   const [showAllEventsModal, setShowAllEventsModal] = useState(false);
   const [allEventsFilterArea, setAllEventsFilterArea] = useState<string>('all');
   const [allEventsFilterYear, setAllEventsFilterYear] = useState<string>('all');
+  const eventsSource = animeEvents;
 
-  // ユーザーの参加イベントを初期化
+  // ユーザーの参加イベントを取得
   useEffect(() => {
     const loadParticipatingEvents = async () => {
       if (user?.id) {
@@ -1016,7 +378,7 @@ export default function Events() {
     loadParticipatingEvents();
   }, [user?.id]);
 
-  const filteredEvents = mockEvents.filter(event => {
+  const filteredEvents = eventsSource.filter(event => {
     const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFilter = filterStatus === 'all' ||
@@ -1035,13 +397,13 @@ export default function Events() {
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'active': return '開催中';
-      case 'completed': return '終了';
-      case 'upcoming': return '開催予定';
-      default: return '不明';
-    }
-  };
+      switch (status) {
+        case 'active': return '開催中';
+        case 'completed': return '終了';
+        case 'upcoming': return '開催予定';
+        default: return '未設定';
+      }
+    };
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
@@ -1054,10 +416,6 @@ export default function Events() {
   };
 
   const handleCreatePost = (postData: any) => {
-    // イベント投稿処理
-    console.log('イベント投稿:', postData);
-    // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setViewMode('list');
   };
 
   const handleToggleEventParticipation = (eventId: string) => {
@@ -1070,60 +428,50 @@ export default function Events() {
 
   const handleSaveParticipatingEvents = async () => {
     if (!user?.id) {
-      console.error('ユーザーIDがありません');
+      console.error('ユーザーIDが取得できません');
       return;
     }
 
     setIsLoading(true);
     try {
-      console.log('💾 保存処理開始 - ユーザーID:', user.id, 'イベントID:', selectedParticipatingEvents);
-
-      // データベースに保存
       const success = await saveUserParticipatingEvents(user.id, selectedParticipatingEvents);
 
       if (success) {
-        console.log('✅ 保存成功 - データベースから再読み込み中...');
-
-        // データベースから最新の参加イベントを再読み込み
         const updatedEvents = await getUserParticipatingEvents(user.id);
-        console.log('📥 再読み込み完了:', updatedEvents);
         setSelectedParticipatingEvents(updatedEvents);
-
         setShowEventSelectionModal(false);
         alert('参加イベントを保存しました');
       } else {
-        console.error('❌ 参加イベントの保存に失敗しました');
+        console.error('参加イベントの保存に失敗しました');
         alert('保存に失敗しました。もう一度お試しください。');
       }
     } catch (error) {
-      console.error('❌ 参加イベント保存エラー:', error);
+      console.error('参加イベントの保存でエラーが発生しました:', error);
       alert('保存中にエラーが発生しました');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 2024年に開催されたイベントを「開催中イベント」として定義
-  const activeEvents = mockEvents.filter(e => {
+  const activeEvents = eventsSource.filter(e => {
     const year2024Match = e.startDate.getFullYear() === 2024 || e.endDate.getFullYear() === 2024;
     if (selectedArea === 'all') return year2024Match;
 
-    // 地方別エリアフィルタリング
     const regionalKeywords: { [key: string]: string[] } = {
-      '北海道': ['北海道', '札幌'],
-      '東北': ['青森', '岩手', '宮城', '秋田', '山形', '福島', '仙台'],
-      '関東': ['東京', '神奈川', '埼玉', '千葉', '茨城', '栃木', '群馬', '渋谷', '新宿', '池袋', '有楽町', '秋葉原', '横浜', '大宮'],
-      '中部': ['新潟', '富山', '石川', '福井', '山梨', '長野', '岐阜', '静岡', '愛知', '名古屋'],
-      '近畿': ['三重', '滋賀', '京都', '大阪', '兵庫', '奈良', '和歌山', '梅田', '神戸'],
-      '中国': ['鳥取', '島根', '岡山', '広島', '山口'],
-      '四国': ['徳島', '香川', '愛媛', '高知'],
-      '九州': ['福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄', '博多', '天神']
+      '北海道': ['札幌', '函館'],
+      '東北': ['仙台', '盛岡', '青森', '秋田', '山形', '福島'],
+      '関東': ['東京', '新宿', '渋谷', '池袋', '横浜', '大宮', '柏', '千葉', '川崎', '吉祥寺', '有楽町'],
+      '中部': ['名古屋', '静岡', '新潟', '金沢', '長野', '岐阜', '富山'],
+      '関西': ['大阪', '梅田', '京都', '神戸', '奈良', '滋賀'],
+      '中国': ['広島', '岡山', '山口', '鳥取', '島根'],
+      '四国': ['高松', '松山', '徳島', '高知'],
+      '九州': ['福岡', '博多', '熊本', '鹿児島', '長崎', '大分', '宮崎', '佐賀']
     };
 
     const keywords = regionalKeywords[selectedArea] || [];
     const matchesArea = e.stores.some(store =>
       keywords.some(keyword => store.includes(keyword))
-    ) || e.stores.includes('全店舗');
+    ) || e.stores.includes('全国');
 
     return year2024Match && matchesArea;
   });
@@ -1133,366 +481,262 @@ export default function Events() {
       <EventPostForm 
         onSubmit={handleCreatePost}
         onCancel={handleBackToList}
-        events={mockEvents.map(e => ({ id: e.id, name: e.name, status: e.status }))}
+        events={eventsSource.map(e => ({ id: e.id, name: e.name, status: e.status }))}
       />
     );
   }
 
   if (viewMode === 'detail' && selectedEvent) {
+    const decoPost = {
+      id: 0,
+      staffName: '櫻井さん',
+      eventName: 'DECO*27',
+      storeName: '有楽町',
+      tags: ['男女比6:4', '高校生〜20代中心', '40代・親子連れもいる'],
+      hookWords: [
+        '今日3000円超えている方が多いので、抽選会に参加できますがエポスカードお持ちですか？',
+        'エポスカードをお持ち前提で話す'
+      ],
+      pitchWords: [
+        '高校卒業・18歳以上を確認する',
+        'スマホ入会で3000円割引',
+        '抽選会B賞ブロマイド8枚コンプセット'
+      ],
+      cardWords: [
+        'マルイは年間300タイトル以上イベント開催',
+        '次回以降も特典メリットあり',
+        '所要約20分'
+      ],
+      hookContent: `【フック】\n・3000円以上買う方が多いので\n「DECO*27のイベントは今回で2回目なんですが、今日お会計3000円超えるので会場限定の非売品が当たる抽選会がこの後出来る権利があるんですが、エポスカード今日持って来ましたか？」と、持っている程でお話します。\n過去にもイベント開催してる事や抽選会・会場限定・非売品などの言葉を使うとお客様も話を聞いてくれる可能性が高くなります。`,
+      pitchContent: `【引き込み】\nはじめの聞き方でお客様が持っていないと分かったら18歳以上高校卒業されている事を確認してから\n「今回このイベントに合わせてキャンペーンをやっていて、スマホから無料で入会して頂くと入場料分をこちらのお会計から3000円割引きさせて頂くのと、抽選会のB賞のブロマイド8枚コンプリートセットを会場で作って頂いた方に抽選会前にプレゼントしてるので作ってからお会計しませんか？」とさらに関心を高めます。`,
+      cardContent: `【カード説明】\n「VISAの付いたマルイグループが発行しているクレジットカードで入会金・年会費や更新費など一切かからないので安心してお申し込み出来ます」「アーティストやアニメのイベントをマルイは年間で300タイトル以上やっているのでカード持っているとまた次回のイベントの時にご提示して現金払いでも抽選出来たり特典多くもらったり出来るので今日作ったカード払いでこの場で3000円引きで○○○円でお得にお買い物していきませんか？」\n※ここで作りますとなったらお時間20分くらい大丈夫ですか？や免許やマイナンバーなどお名前入ってる物お持ちですか？や今日カードが作れたらそのカードでお支払いして下さいね。など確認してご案内します。\n※ここまでお話しして断ったり、お時間ない方には無理おすすめせず「じゃ、またの機会にお願いしますね」とさっさと精算します。`,
+      memoContent: `【補足メモ】\n▪️客層\n男女比6:4  高校生〜20代中心で\n40代や親子連れもいる。\nエポスのデザイン券面で「ピノキオピー」という同じボーカロイドのプロデューサーの券面が親和性があり、カードのおすすめの際に見せるとその券面でお申し込みする方が多い。前回もその券面が人気でした。`,
+      likes: 100,
+      helpful: 0
+    };
+
+    const detailPosts: Array<typeof decoPost> = [];
+
+    const sortedPosts = [decoPost, ...detailPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+
     return (
-      <div className="space-y-6">
-        {/* ヘッダー */}
-        <div className="flex items-center space-x-4">
+      <div className="space-y-6 pb-10">
+        <div>
           <button
             onClick={handleBackToList}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors"
           >
-            <ChevronRight className="w-5 h-5 rotate-180" />
+            <ChevronRight className="w-4 h-4 rotate-180" />
+            一覧に戻る
           </button>
-          <div className="flex-1">
-            <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">{selectedEvent.name}</h1>
-              <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(selectedEvent.status)}`}>
-                {getStatusLabel(selectedEvent.status)}
+        </div>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <span className="text-[10px] font-bold text-gray-400 tracking-widest">Current Event</span>
+          <div className="flex justify-between items-end gap-3">
+            <h2 className="text-2xl font-extrabold tracking-tight">{selectedEvent.name}</h2>
+            <div className="text-right">
+              <p className="text-[12px] font-bold text-blue-600">閲覧ページ</p>
+              <p className="text-[10px] text-gray-400">単語チップでトークをマスターする</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-3">
+          {selectedEvent.essentialKnowledge?.officialSiteUrl ? (
+            <a
+              href={selectedEvent.essentialKnowledge.officialSiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Event Info</span>
+                <p className="text-sm font-bold text-gray-900">今回のイベント詳細</p>
+                <span className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                  公式ページへ <ChevronRight className="w-3 h-3" />
+                </span>
+              </div>
+            </a>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Event Info</span>
+                <p className="text-sm font-bold text-gray-900">今回のイベント詳細</p>
+                <p className="text-[11px] text-gray-500 mt-1">公式情報は準備中です</p>
+              </div>
+            </div>
+          )}
+
+          <a
+            href="https://www.eposcard.co.jp/gecard/ec00013/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600">
+              <ExternalLink className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Related Card</span>
+              <p className="text-sm font-bold text-gray-900">関連カード</p>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">{selectedEvent.aiSummary}</p>
+              <span className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                カード詳細 <ChevronRight className="w-3 h-3" />
               </span>
             </div>
-            <p className="text-gray-600">{selectedEvent.description}</p>
-          </div>
+          </a>
+        </section>
+
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xl font-bold tracking-tight">達人の投稿</h3>
+          <button
+            onClick={() => setShowHookHelp(true)}
+            className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100"
+          >
+            口コミの構造
+          </button>
         </div>
 
-        {/* タブナビゲーション */}
-        <div className="bg-white rounded-xl border border-gray-200 p-1">
-          <div className="grid grid-cols-4 gap-2">
-            <button
-              onClick={() => setActiveDetailTab('knowledge')}
-              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
-                activeDetailTab === 'knowledge'
-                  ? 'bg-vivid-red text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              💫 ファンの楽しみを理解するための基礎情報
-            </button>
-            <button
-              onClick={() => setActiveDetailTab('overview')}
-              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
-                activeDetailTab === 'overview'
-                  ? 'bg-vivid-red text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              📊 概要
-            </button>
-            <button
-              onClick={() => setActiveDetailTab('patterns')}
-              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
-                activeDetailTab === 'patterns'
-                  ? 'bg-vivid-red text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              ✨ 成功パターン
-            </button>
-            <button
-              onClick={() => setActiveDetailTab('phrases')}
-              className={`px-4 py-3 rounded-lg font-medium transition-colors text-sm ${
-                activeDetailTab === 'phrases'
-                  ? 'bg-vivid-red text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              💬 フレーズ集
-            </button>
-          </div>
+        <div className="space-y-6">
+          {sortedPosts.map((post, idx) => {
+            const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📄';
+            return (
+              <div key={post.id} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                <div className="flex justify-between items-start mb-5 gap-3">
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      {post.eventName}
+                    </span>
+                    <h4 className="text-lg font-bold mt-1 truncate">
+                      {medal} {post.staffName}{' '}
+                      <span className="text-xs text-gray-400 font-normal">@{post.storeName}</span>
+                    </h4>
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-50 border border-gray-200 text-xs font-bold text-gray-700">
+                    <ThumbsUp className="w-4 h-4" />
+                    役に立った({post.helpful})
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🪝 フック</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {post.hookWords.map((w, i) => (
+                        <span key={`${post.id}-hook-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-orange-50 text-orange-600 border border-orange-100">
+                          {w}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">📢 引き込み</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {post.pitchWords.map((w, i) => (
+                        <span key={`${post.id}-pitch-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-green-50 text-green-700 border border-green-100">
+                          {w}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🧾 カード説明</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {post.cardWords.map((w, i) => (
+                        <span key={`${post.id}-card-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+                          {w}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100">
+                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🏷 属性</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {post.tags.map((t, i) => (
+                        <span key={`${post.id}-tag-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-gray-50 text-gray-600 border border-gray-200">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <details className="mt-6 pt-4 border-t border-gray-100">
+                  <summary className="flex justify-center items-center text-xs font-bold text-gray-600 cursor-pointer">
+                    全文を見る <ChevronRight className="w-3 h-3 ml-1" />
+                  </summary>
+                  <div className="mt-4 space-y-4">
+                    <div className="bg-orange-50/50 p-4 rounded-xl text-sm leading-relaxed border border-orange-100/60">
+                      <p className="font-bold text-orange-500 text-[10px] uppercase mb-2">フック全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700">{post.hookContent}</div>
+                    </div>
+                    <div className="bg-green-50/50 p-4 rounded-xl text-sm leading-relaxed border border-green-100/60">
+                      <p className="font-bold text-green-600 text-[10px] uppercase mb-2">引き込み全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700">{post.pitchContent}</div>
+                    </div>
+                    <div className="bg-blue-50/50 p-4 rounded-xl text-sm leading-relaxed border border-blue-100/60">
+                      <p className="font-bold text-blue-600 text-[10px] uppercase mb-2">説明全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700">{post.cardContent}</div>
+                    </div>
+                    <div className="bg-gray-100/50 p-4 rounded-xl text-sm leading-relaxed border border-gray-200/60">
+                      <p className="font-bold text-gray-500 text-[10px] uppercase mb-2">補足メモ</p>
+                      <div className="whitespace-pre-wrap text-gray-700">{post.memoContent}</div>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            );
+          })}
         </div>
 
-        {/* 必須知識タブ */}
-        {activeDetailTab === 'knowledge' && selectedEvent.essentialKnowledge && (
-          <div className="space-y-4">
-            {/* 作品概要 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center space-x-2">
-                <span className="text-2xl">📖</span>
-                <span>作品概要</span>
-              </h3>
-              <p className="text-gray-700 leading-relaxed mb-4">{selectedEvent.essentialKnowledge.overview}</p>
+        <div className="grid grid-cols-2 gap-3">
+          <a
+            href="https://docs.google.com/forms/d/1ZVv_aefg2sSfXiKEzNXprRJEb0C0tQiUAH50M_l-RAs/edit?usp=forms_home&ouid=117951192700997366273&ths=true"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-600 text-white rounded-xl py-4 font-semibold shadow-lg shadow-blue-200 text-center"
+          >
+            投稿
+          </a>
+          <a
+            href="https://docs.google.com/forms/d/1P8QJ34C5Mt6PQq82GSrHhbm3K8mQK-gSNp33HA9at9k/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white border border-gray-200 rounded-xl py-4 font-bold text-gray-700 text-center"
+          >
+            アンケート
+          </a>
+        </div>
 
-              {/* 公式サイトリンク */}
-              {selectedEvent.essentialKnowledge.officialSiteUrl && (
-                <a
-                  href={selectedEvent.essentialKnowledge.officialSiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="font-medium">公式サイトを見る</span>
-                </a>
-              )}
-            </div>
+        <div className="mt-3 px-1 space-y-1">
+          <p className="text-[11px] text-gray-500">※運営中にお気づきの点があれば、「投稿」からぜひ共有してください（いつでもOK）</p>
+          <p className="text-[11px] text-gray-500">※ご利用後に「アンケート」へのご回答にご協力をお願いいたします</p>
+        </div>
 
-            {/* 主要キャラクター */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <span className="text-2xl">👥</span>
-                <span>主要キャラクターTOP3</span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {selectedEvent.essentialKnowledge.mainCharacters.map((character, index) => (
-                  <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
-                        {index + 1}
-                      </div>
-                      <p className="text-gray-800 font-medium">{character}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ファン層の特徴 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <span className="text-2xl">🎯</span>
-                <span>ファン層の特徴</span>
-              </h3>
-              <ul className="space-y-3">
-                {selectedEvent.essentialKnowledge.fanBase.map((item, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <span className="text-sky-blue mt-1">●</span>
-                    <span className="text-gray-700 flex-1">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 会話のヒント */}
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <span className="text-2xl">💬</span>
-                <span>ファンと楽しく話すためのヒント</span>
-              </h3>
-              <ul className="space-y-3">
-                {selectedEvent.essentialKnowledge.precautions.map((item, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <span className="text-pink-500 mt-1">💡</span>
-                    <span className="text-gray-800 flex-1">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 会話のきっかけポイント */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <span className="text-2xl">🌟</span>
-                <span>会話のきっかけポイント</span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {selectedEvent.essentialKnowledge.servicePoints.map((point, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-blue-200 shadow-sm">
-                    <span className="text-blue-500 text-xl">💬</span>
-                    <span className="text-gray-800 flex-1">{point}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 概要タブ */}
-        {activeDetailTab === 'overview' && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <MessageCircle className="w-8 h-8 text-sky-blue mx-auto mb-2" />
-                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalPosts}</div>
-                <div className="text-sm text-gray-600">投稿事例</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <Eye className="w-8 h-8 text-success-green mx-auto mb-2" />
-                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalViews}</div>
-                <div className="text-sm text-gray-600">総閲覧数</div>
-              </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <ThumbsUp className="w-8 h-8 text-sunshine-yellow mx-auto mb-2" />
-                <div className="text-xl font-bold text-gray-900">{selectedEvent.totalReactions}</div>
-                <div className="text-sm text-gray-600">総リアクション</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                <div className="text-xl font-bold text-gray-900">{selectedEvent.stores.length}</div>
-                <div className="text-sm text-gray-600">参加店舗</div>
-              </div>
-            </div>
-
-            {/* AI要約 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <Sparkles className="w-5 h-5 text-sky-blue mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-sky-blue mb-2">AI分析サマリー</h3>
-                  <p className="text-blue-700">{selectedEvent.aiSummary}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* 参加店舗 */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <Users className="w-5 h-5 text-purple-600" />
-                <span>参加店舗</span>
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedEvent.stores.map((store, index) => (
-                  <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
-                    {store}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 成功パターンタブ */}
-        {activeDetailTab === 'patterns' && selectedEvent.successPatterns.length > 0 && (
-          <div className="space-y-6">
-            {/* 成功パターンTOP3 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-4">
-                <Award className="w-5 h-5 text-sunshine-yellow" />
-                <h3 className="text-lg font-semibold text-gray-900">成功パターンTOP3</h3>
-              </div>
-              <div className="space-y-3">
-                {selectedEvent.successPatterns.map((pattern, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <div className="w-8 h-8 bg-sunshine-yellow text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                      {index + 1}
-                    </div>
-                    <p className="text-gray-800 flex-1 text-base">{pattern}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 実際の事例投稿 */}
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <MessageCircle className="w-5 h-5 text-sky-blue" />
-                <h3 className="text-lg font-semibold text-gray-900">みんなの投稿事例</h3>
-              </div>
-              {/* 今週の人気事例TOP3（イベント内） */}
-              <div className="bg-gradient-to-r from-yellow-50 to-red-50 rounded-xl p-6 border border-yellow-200 mb-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Award className="w-5 h-5 text-sunshine-yellow" />
-                  <h3 className="text-lg font-semibold text-gray-900">今週の人気事例TOP3</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {mockCommunityPosts
-                    .filter(post => post.eventId === selectedEvent.id)
-                    .sort((a, b) => {
-                      const aScore = a.reactions.like + a.reactions.empathy + a.reactions.helpful;
-                      const bScore = b.reactions.like + b.reactions.empathy + b.reactions.helpful;
-                      return bScore - aScore;
-                    })
-                    .slice(0, 3)
-                    .map((post, index) => (
-                      <div key={post.id} className="bg-white rounded-lg p-4 border border-yellow-200">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                            index === 0 ? 'bg-sunshine-yellow' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
-                          }`}>
-                            {index + 1}
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{post.author.department}</span>
-                        </div>
-                        <h4 className="font-medium text-gray-900 text-sm mb-2 line-clamp-2">{post.title}</h4>
-                        <div className="flex items-center space-x-3 text-xs text-gray-500">
-                          <span>{post.reactions.like + post.reactions.empathy + post.reactions.helpful} リアクション</span>
-                          <span>{post.views} 閲覧</span>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {mockCommunityPosts.filter(post => post.eventId === selectedEvent.id).map((post) => (
-                  <div key={post.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                    <div className="flex items-start space-x-4 mb-4">
-                      <img
-                        src={post.author.avatar}
-                        alt={post.author.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{post.title}</h4>
-                            <p className="text-sm text-gray-600">{post.author.name} · {post.author.department}</p>
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {post.createdAt.toLocaleDateString('ja-JP')}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div>
-                        <span className="text-xs font-semibold text-purple-600 uppercase">状況</span>
-                        <p className="text-gray-700 mt-1">{post.situation}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-blue-600 uppercase">工夫したこと</span>
-                        <p className="text-gray-700 mt-1">{post.innovation}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-green-600 uppercase">結果</span>
-                        <p className="text-gray-700 mt-1">{post.result}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex flex-wrap gap-2">
-                        {post.tags.map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className="flex items-center space-x-1">
-                          <ThumbsUp className="w-4 h-4" />
-                          <span>{post.reactions.like}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Eye className="w-4 h-4" />
-                          <span>{post.views}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* フレーズ集タブ */}
-        {activeDetailTab === 'phrases' && selectedEvent.keyPhrases.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <MessageCircle className="w-5 h-5 text-success-green" />
-              <h3 className="text-lg font-semibold text-gray-900">効果的な声かけフレーズ</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {selectedEvent.keyPhrases.map((phrase, index) => (
-                <div key={index} className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-gray-800 font-medium text-base">{phrase}</p>
-                </div>
-              ))}
+        {showHookHelp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6">
+            <div className="relative w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <button
+                onClick={() => setShowHookHelp(false)}
+                className="absolute top-3 right-3 z-10 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-semibold hover:bg-gray-800"
+              >
+                閉じる
+              </button>
+              <iframe
+                title="口コミの構造"
+                srcDoc={HOOK_HELP_HTML}
+                className="w-full h-full border-0"
+              />
             </div>
           </div>
         )}
@@ -1503,7 +747,7 @@ export default function Events() {
   return (
     <div className="space-y-6">
 
-      {/* 統計情報 */}
+      {/* 邨ｱ險域ュ蝣ｱ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button
           onClick={() => setShowEventSelectionModal(true)}
@@ -1513,21 +757,21 @@ export default function Events() {
           <div className="text-xl font-bold text-gray-900">
             {selectedParticipatingEvents.length}
           </div>
-          <div className="text-sm text-gray-600">参加中イベント</div>
-          <div className="text-xs text-purple-600 mt-1">クリックして選択</div>
+          <div className="text-sm text-gray-600">参加イベント数</div>
+          <div className="text-xs text-purple-600 mt-1">クリックして確認</div>
         </button>
         <button
           onClick={() => setShowAllEventsModal(true)}
           className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-sky-blue hover:shadow-md transition-all"
         >
           <Calendar className="w-8 h-8 text-sky-blue mx-auto mb-2" />
-          <div className="text-xl font-bold text-gray-900">{mockEvents.length}</div>
+          <div className="text-xl font-bold text-gray-900">{eventsSource.length}</div>
           <div className="text-sm text-gray-600">総イベント数</div>
           <div className="text-xs text-sky-blue mt-1">クリックして過去イベントを確認</div>
         </button>
       </div>
 
-      {/* 検索・フィルター */}
+      
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
           <div className="flex-1 relative">
@@ -1547,7 +791,7 @@ export default function Events() {
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
           >
             <option value="all">すべて</option>
-            <option value="my-events">参加中のイベント</option>
+            <option value="my-events">参加イベント</option>
             <option value="active">開催中</option>
             <option value="upcoming">開催予定</option>
             <option value="completed">終了</option>
@@ -1555,7 +799,7 @@ export default function Events() {
         </div>
       </div>
 
-      {/* イベント一覧 */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {filteredEvents.map((event) => (
           <div
@@ -1573,7 +817,7 @@ export default function Events() {
                   {selectedParticipatingEvents.includes(event.id) && (
                     <span className="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
                       <Users className="w-3 h-3" />
-                      <span>参加中</span>
+                      <span>参加イベント</span>
                     </span>
                   )}
                   <h3 className="text-lg font-semibold text-gray-900 group-hover:text-sky-blue transition-colors">
@@ -1591,7 +835,7 @@ export default function Events() {
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="text-center">
                 <div className="text-lg font-bold text-sky-blue">{event.totalPosts}</div>
-                <div className="text-xs text-gray-600">投稿事例</div>
+                <div className="text-xs text-gray-600">投稿数</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-success-green">{event.totalReactions}</div>
@@ -1611,8 +855,7 @@ export default function Events() {
               ))}
               {event.tags.length > 3 && (
                 <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
-                  +{event.tags.length - 3}個
-                </span>
+                  +{event.tags.length - 3}件                </span>
               )}
             </div>
 
@@ -1637,50 +880,50 @@ export default function Events() {
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {filterStatus === 'my-events' ? '参加中のイベントがありません' : '該当するイベントが見つかりません'}
-          </h3>
-          <p className="text-gray-600">
-            {filterStatus === 'my-events' 
-              ? 'イベントに参加して事例を共有しましょう' 
-              : '検索条件を変更してお試しください'
-            }
-          </p>
+              {filterStatus === 'my-events' ? '参加イベントがありません' : '該当するイベントが見つかりません'}
+            </h3>
+            <p className="text-gray-600">
+              {filterStatus === 'my-events'
+                ? '参加するイベントを選択するとここに表示されます。'
+                : '検索条件を変更してお試しください。'
+              }
+            </p>
         </div>
       )}
 
-      {/* ヒント */}
+      
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-        <h3 className="font-semibold text-sky-blue mb-2">💡 イベントページの活用方法</h3>
+        <h3 className="font-semibold text-sky-blue mb-2">イベントページの使い方</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
           <div>
-            <h4 className="font-medium mb-1">事前準備</h4>
+            <h4 className="font-medium mb-1">学びのポイント</h4>
             <ul className="space-y-1">
-              <li>• 過去の類似イベント事例を確認</li>
-              <li>• 成功パターンを事前学習</li>
-              <li>• 効果的なフレーズを準備</li>
+              <li>・最新イベントの情報を確認</li>
+              <li>・ベスト事例を参考にする</li>
+              <li>・使えるフレーズを覚える</li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-1">イベント中</h4>
+            <h4 className="font-medium mb-1">イベント投稿</h4>
             <ul className="space-y-1">
-              <li>• ベストプラクティスを実践</li>
-              <li>• 新しい成功事例をコミュニティに投稿</li>
-              <li>• 他店舗の最新事例をチェック</li>
+              <li>・ベスト事例を確認</li>
+              <li>・学びをコメントで共有</li>
+              <li>・最新の投稿をチェック</li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* イベント選択モーダル */}
+      
       {showEventSelectionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            {/* モーダルヘッダー */}
+            
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">参加イベントを選択</h2>
-                  <p className="text-gray-600 mt-1">開催中のイベントから参加するものを選んでください</p>
+                  <p className="text-gray-600 mt-1">参加するイベントを選択してください</p>
                 </div>
                 <button
                   onClick={() => setShowEventSelectionModal(false)}
@@ -1690,10 +933,10 @@ export default function Events() {
                 </button>
               </div>
 
-              {/* エリアフィルタ */}
+              
               <div className="flex items-center space-x-2 overflow-x-auto pb-2">
                 <span className="text-sm font-medium text-gray-700 whitespace-nowrap">エリア:</span>
-                {['all', '北海道', '東北', '関東', '中部', '近畿', '中国', '四国', '九州'].map((area) => (
+                {['all','北海道','東北','関東','中部','関西','中国','四国','九州'].map((area) => (
                   <button
                     key={area}
                     onClick={() => setSelectedArea(area)}
@@ -1709,7 +952,7 @@ export default function Events() {
               </div>
             </div>
 
-            {/* 開催中イベント一覧 */}
+            
             <div className="p-6 space-y-4">
               {activeEvents.length > 0 ? (
                 activeEvents.map((event) => (
@@ -1741,11 +984,11 @@ export default function Events() {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Users className="w-4 h-4" />
-                            <span>{event.stores.length}店舗参加</span>
+                            <span>{event.stores.length}店舗蜿ょ刈</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <MessageCircle className="w-4 h-4" />
-                            <span>{event.totalPosts}件の事例</span>
+                            <span>{event.totalPosts}件の投稿</span>
                           </div>
                         </div>
                       </div>
@@ -1764,12 +1007,12 @@ export default function Events() {
               ) : (
                 <div className="text-center py-12">
                   <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">現在開催中のイベントはありません</p>
+                  <p className="text-gray-600">該当するイベントがありません</p>
                 </div>
               )}
             </div>
 
-            {/* モーダルフッター */}
+            
             <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex justify-between items-center">
               <div className="text-sm text-gray-600">
                 {selectedParticipatingEvents.length}件のイベントを選択中
@@ -1786,24 +1029,23 @@ export default function Events() {
                   disabled={isLoading}
                   className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? '保存中...' : '保存'}
-                </button>
+                  {isLoading ? '保存中...' : '保存する'}</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 過去イベント一覧モーダル */}
+      
       {showAllEventsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-            {/* モーダルヘッダー */}
+            
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">過去のイベント一覧</h2>
-                  <p className="text-gray-600 mt-1">過去に開催されたイベントを確認できます</p>
+                  <h2 className="text-2xl font-bold text-gray-900">全イベント一覧</h2>
+                  <p className="text-gray-600 mt-1">すべてのイベントを確認できます</p>
                 </div>
                 <button
                   onClick={() => setShowAllEventsModal(false)}
@@ -1813,7 +1055,7 @@ export default function Events() {
                 </button>
               </div>
 
-              {/* フィルター */}
+              
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-700 mb-1 block">エリア</label>
@@ -1823,15 +1065,14 @@ export default function Events() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
                   >
                     <option value="all">すべてのエリア</option>
-                    <option value="全国">全国</option>
                     <option value="北海道">北海道</option>
                     <option value="東北">東北</option>
                     <option value="関東">関東</option>
                     <option value="中部">中部</option>
-                    <option value="近畿">近畿</option>
+                    <option value="関西">関西</option>
                     <option value="中国">中国</option>
                     <option value="四国">四国</option>
-                    <option value="九州・沖縄">九州・沖縄</option>
+                    <option value="九州">九州</option>
                   </select>
                 </div>
                 <div className="flex-1">
@@ -1851,23 +1092,65 @@ export default function Events() {
               </div>
             </div>
 
-            {/* イベント一覧 */}
+            
             <div className="p-6 space-y-4">
-              {mockEvents
+              {eventsSource
                 .filter(event => {
-                  // エリアマッピング関数
                   const getAreaFromStore = (storeName: string): string => {
-                    if (storeName.includes('全店舗')) return '全国';
-                    if (storeName.includes('札幌')) return '北海道';
-                    if (storeName.includes('仙台')) return '東北';
-                    if (storeName.includes('東京') || storeName.includes('渋谷') || storeName.includes('新宿') ||
-                        storeName.includes('池袋') || storeName.includes('有楽町') || storeName.includes('秋葉原')) return '関東';
-                    if (storeName.includes('横浜') || storeName.includes('川崎')) return '関東';
-                    if (storeName.includes('埼玉') || storeName.includes('千葉')) return '関東';
-                    if (storeName.includes('名古屋')) return '中部';
-                    if (storeName.includes('大阪') || storeName.includes('梅田') || storeName.includes('難波') || storeName.includes('天王寺')) return '近畿';
-                    if (storeName.includes('福岡') || storeName.includes('天神') || storeName.includes('博多')) return '九州・沖縄';
-                    return '全国';
+                    const keywordToArea: { [key: string]: string } = {
+                      札幌: '北海道',
+                      函館: '北海道',
+                      仙台: '東北',
+                      盛岡: '東北',
+                      青森: '東北',
+                      秋田: '東北',
+                      山形: '東北',
+                      福島: '東北',
+                      東京: '関東',
+                      新宿: '関東',
+                      渋谷: '関東',
+                      池袋: '関東',
+                      横浜: '関東',
+                      大宮: '関東',
+                      柏: '関東',
+                      千葉: '関東',
+                      川崎: '関東',
+                      吉祥寺: '関東',
+                      有楽町: '関東',
+                      名古屋: '中部',
+                      静岡: '中部',
+                      新潟: '中部',
+                      金沢: '中部',
+                      長野: '中部',
+                      岐阜: '中部',
+                      富山: '中部',
+                      大阪: '関西',
+                      梅田: '関西',
+                      京都: '関西',
+                      神戸: '関西',
+                      奈良: '関西',
+                      滋賀: '関西',
+                      広島: '中国',
+                      岡山: '中国',
+                      山口: '中国',
+                      鳥取: '中国',
+                      島根: '中国',
+                      高松: '四国',
+                      松山: '四国',
+                      徳島: '四国',
+                      高知: '四国',
+                      福岡: '九州',
+                      博多: '九州',
+                      熊本: '九州',
+                      鹿児島: '九州',
+                      長崎: '九州',
+                      大分: '九州',
+                      宮崎: '九州',
+                      佐賀: '九州'
+                    };
+
+                    const key = Object.keys(keywordToArea).find(k => storeName.includes(k));
+                    return key ? keywordToArea[key] : 'その他';
                   };
 
                   const areaMatch = allEventsFilterArea === 'all' ||
@@ -1875,7 +1158,7 @@ export default function Events() {
                       const storeArea = getAreaFromStore(store);
                       return storeArea === allEventsFilterArea;
                     }) ||
-                    (allEventsFilterArea === '全国' && event.stores.includes('全店舗'));
+                    (allEventsFilterArea === '蜈ｨ蝗ｽ' && event.stores.includes('全国'));
 
                   const yearMatch = allEventsFilterYear === 'all' ||
                     event.startDate.getFullYear().toString() === allEventsFilterYear;
@@ -1910,11 +1193,11 @@ export default function Events() {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Users className="w-4 h-4" />
-                            <span>{event.stores.length}店舗参加</span>
+                            <span>{event.stores.length}店舗蜿ょ刈</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <MessageCircle className="w-4 h-4" />
-                            <span>{event.totalPosts}件の事例</span>
+                            <span>{event.totalPosts}件の投稿</span>
                           </div>
                         </div>
                       </div>
@@ -1929,3 +1212,27 @@ export default function Events() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
