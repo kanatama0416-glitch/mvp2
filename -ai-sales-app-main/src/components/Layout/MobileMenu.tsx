@@ -45,21 +45,12 @@ export default function MobileMenu({
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
       <div className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">メニュー</h2>
+        <div className="flex items-center justify-end p-4 border-b border-gray-200">
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-4 text-gray-400 hover:bg-red-50 hover:text-vivid-red rounded-lg transition-all duration-200 mt-2"
-          >
-            <LogOut className="w-6 h-6" />
-            <span className="font-medium text-base">ログアウト</span>
           </button>
         </div>
 
@@ -97,6 +88,15 @@ export default function MobileMenu({
               </div>
               <span className="font-medium text-base">はじめに戻る</span>
             </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-4 text-gray-400 hover:bg-red-50 hover:text-vivid-red rounded-lg transition-all duration-200 mt-2"
+            >
+              <LogOut className="w-6 h-6" />
+              <span className="font-medium text-base">ログアウト</span>
+            </button>
+
           </div>
         </nav>
       </div>

@@ -14,6 +14,7 @@ import { CommunityPost } from '../../types';
 import EventPostForm from './EventPostForm';
 import { useAuth } from '../../hooks/useAuth';
 import { saveUserParticipatingEvents, getUserParticipatingEvents } from '../../services/eventService';
+import { HOOK_HELP_HTML } from '../shared/hookHelpHtml';
 
 interface Event {
   id: string;
@@ -298,58 +299,6 @@ const animeEvents: Event[] = [
 
 type FilterStatus = 'all' | 'active' | 'completed' | 'upcoming' | 'my-events';
 
-const HOOK_HELP_HTML = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>口コミの構造</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background: #f6f7fb; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
-    .card { background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
-    .pill { background: #eef2ff; color: #4338ca; border: 1px solid #e0e7ff; }
-  </style>
-</head>
-<body class="p-4">
-  <div class="max-w-md mx-auto space-y-4">
-    <div class="card p-4">
-      <p class="text-[11px] font-bold text-gray-400 tracking-widest">説明ページ</p>
-      <h1 class="text-2xl font-extrabold mt-1">口コミの構造</h1>
-      <p class="text-sm text-gray-500 mt-1">話す順番を整えると伝わりやすくなります</p>
-      <div class="mt-3 p-3 rounded-xl pill text-sm font-semibold">フック → 引き込み → カード説明</div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-sm font-bold mb-2">カードご案内の流れ</div>
-      <div class="space-y-3 text-sm">
-        <div><span class="font-semibold">1. フック</span>：話を聞く理由を作る</div>
-        <div><span class="font-semibold">2. 引き込み</span>：魅力やメリットを伝える</div>
-        <div><span class="font-semibold">3. カード説明</span>：安心材料で背中を押す</div>
-      </div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-sm font-bold mb-2">例（イベント案内）</div>
-      <div class="text-sm text-gray-700 space-y-2">
-        <div>フック：｢このイベント、今日だけの特典があるんですが…｣</div>
-        <div>引き込み：｢入会いただくとその場で割引になります｣</div>
-        <div>カード説明：｢入会金・年会費は無料です｣</div>
-      </div>
-    </div>
-
-    <div class="card p-4">
-      <div class="text-sm font-bold mb-2">ポイント</div>
-      <ul class="text-sm text-gray-700 list-disc pl-5 space-y-1">
-        <li>順番を守ると会話がスムーズ</li>
-        <li>相手の反応を見て無理に進めない</li>
-        <li>最後は安心材料で締める</li>
-      </ul>
-    </div>
-  </div>
-</body>
-</html>`;
-
 export default function Events() {
   const { user, updateUser } = useAuth();
   const [viewMode, setViewMode] = useState<ViewModeWithCreate>('list');
@@ -365,6 +314,7 @@ export default function Events() {
   const [showAllEventsModal, setShowAllEventsModal] = useState(false);
   const [allEventsFilterArea, setAllEventsFilterArea] = useState<string>('all');
   const [allEventsFilterYear, setAllEventsFilterYear] = useState<string>('all');
+  const [expandedStoresEventId, setExpandedStoresEventId] = useState<string | null>(null);
   const eventsSource = animeEvents;
 
   // ユーザーの参加イベントを取得
@@ -377,6 +327,17 @@ export default function Events() {
     };
     loadParticipatingEvents();
   }, [user?.id]);
+
+  useEffect(() => {
+    const handleHookHelpMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'closeHookHelp') {
+        setShowHookHelp(false);
+      }
+    };
+
+    window.addEventListener('message', handleHookHelpMessage);
+    return () => window.removeEventListener('message', handleHookHelpMessage);
+  }, []);
 
   const filteredEvents = eventsSource.filter(event => {
     const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -487,7 +448,27 @@ export default function Events() {
   }
 
   if (viewMode === 'detail' && selectedEvent) {
-    const decoPost = {
+    type DetailPost = {
+      id: number;
+      staffName: string;
+      eventName: string;
+      storeName: string;
+      tags: string[];
+      hookWords: string[];
+      pitchWords: string[];
+      cardWords: string[];
+      hookContent: string;
+      pitchContent: string;
+      cardContent: string;
+      memoContent: string;
+      adminComment?: string;
+      adminAuthor?: string;
+      adminUpdatedAt?: string;
+      likes: number;
+      helpful: number;
+    };
+
+    const decoPost: DetailPost = {
       id: 0,
       staffName: '櫻井さん',
       eventName: 'DECO*27',
@@ -511,13 +492,48 @@ export default function Events() {
       pitchContent: `【引き込み】\nはじめの聞き方でお客様が持っていないと分かったら18歳以上高校卒業されている事を確認してから\n「今回このイベントに合わせてキャンペーンをやっていて、スマホから無料で入会して頂くと入場料分をこちらのお会計から3000円割引きさせて頂くのと、抽選会のB賞のブロマイド8枚コンプリートセットを会場で作って頂いた方に抽選会前にプレゼントしてるので作ってからお会計しませんか？」とさらに関心を高めます。`,
       cardContent: `【カード説明】\n「VISAの付いたマルイグループが発行しているクレジットカードで入会金・年会費や更新費など一切かからないので安心してお申し込み出来ます」「アーティストやアニメのイベントをマルイは年間で300タイトル以上やっているのでカード持っているとまた次回のイベントの時にご提示して現金払いでも抽選出来たり特典多くもらったり出来るので今日作ったカード払いでこの場で3000円引きで○○○円でお得にお買い物していきませんか？」\n※ここで作りますとなったらお時間20分くらい大丈夫ですか？や免許やマイナンバーなどお名前入ってる物お持ちですか？や今日カードが作れたらそのカードでお支払いして下さいね。など確認してご案内します。\n※ここまでお話しして断ったり、お時間ない方には無理おすすめせず「じゃ、またの機会にお願いしますね」とさっさと精算します。`,
       memoContent: `【補足メモ】\n▪️客層\n男女比6:4  高校生〜20代中心で\n40代や親子連れもいる。\nエポスのデザイン券面で「ピノキオピー」という同じボーカロイドのプロデューサーの券面が親和性があり、カードのおすすめの際に見せるとその券面でお申し込みする方が多い。前回もその券面が人気でした。`,
+      adminComment: `【運営コメント】\n今回のイベントは「割引訴求」が強いので、\n1) 最初の一言は短く\n2) 「作る→会計」の導線を明確にする\n3) 迷っている方には券面を提示する\nを徹底すると成約率を上げやすくなります。\n\n※「無理に勧めない」判断も重要です。`,
+      adminAuthor: 'まなびー運営',
+      adminUpdatedAt: '2026-02-19',
       likes: 100,
       helpful: 0
     };
 
-    const detailPosts: Array<typeof decoPost> = [];
+    const buildPostFromEvent = (event: Event): DetailPost => {
+      const primaryStore = event.stores?.[0] || '未設定';
+      const hookWords = event.keyPhrases.length > 0 ? event.keyPhrases.slice(0, 2) : ['まずは興味を引く一言から'];
+      const pitchWords = event.successPatterns.length > 0 ? event.successPatterns.slice(0, 3) : ['特典やメリットを簡潔に伝える'];
+      const cardWords = [
+        '入会金・年会費は永年無料',
+        `${event.name}に合わせた特典をご案内`,
+        'お申し込み所要時間は約20分'
+      ];
 
-    const sortedPosts = [decoPost, ...detailPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      return {
+        id: Number(String(event.id).replace(/\D/g, '')) || 1,
+        staffName: '達人スタッフ',
+        eventName: event.name,
+        storeName: primaryStore,
+        tags: [...event.tags.slice(0, 3), `${event.status === 'active' ? '開催中' : event.status === 'upcoming' ? '開催予定' : '終了イベント'}`],
+        hookWords,
+        pitchWords,
+        cardWords,
+        hookContent: `【フック】\n${hookWords.join('\n')}\n\nまずはお客様が「少し聞いてみよう」と思える入口を作ります。`,
+        pitchContent: `【引き込み】\n${pitchWords.join('\n')}\n\nイベントの魅力とお客様メリットを短く具体的に伝えます。`,
+        cardContent: `【カード説明】\n入会金・年会費は永年無料で、安心してお申し込みいただけます。\n${event.aiSummary}\n\n最後に所要時間と必要な確認事項を伝えて、判断しやすくします。`,
+        memoContent: `【補足メモ】\nイベント概要: ${event.description}\n推奨店舗: ${event.stores.join(' / ')}\n注意点: ${(event.essentialKnowledge?.precautions || ['誤案内を避けるため、最新の公式情報を確認']).join(' / ')}`,
+        adminComment: `【運営コメント】\nこのイベントでは「${event.successPatterns[0] || '共感から会話を始める'}」を最優先にしてください。\n次に「${event.successPatterns[1] || '限定メリットを明確にする'}」を添えると、会話が自然につながります。`,
+        adminAuthor: 'まなびー運営',
+        adminUpdatedAt: '2026-02-19',
+        likes: Math.max(event.totalReactions, 1),
+        helpful: 0
+      };
+    };
+
+    const primaryPost = selectedEvent.id === 'deco27' ? decoPost : buildPostFromEvent(selectedEvent);
+    const detailPosts: DetailPost[] = [];
+    const sortedPosts = [primaryPost, ...detailPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    const topPost = sortedPosts[0];
 
     return (
       <div className="space-y-6 pb-10">
@@ -527,50 +543,38 @@ export default function Events() {
             className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors"
           >
             <ChevronRight className="w-4 h-4 rotate-180" />
-            一覧に戻る
+            戻る
           </button>
         </div>
 
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <span className="text-[10px] font-bold text-gray-400 tracking-widest">Current Event</span>
-          <div className="flex justify-between items-end gap-3">
-            <h2 className="text-2xl font-extrabold tracking-tight">{selectedEvent.name}</h2>
-            <div className="text-right">
-              <p className="text-[12px] font-bold text-blue-600">閲覧ページ</p>
-              <p className="text-[10px] text-gray-400">単語チップでトークをマスターする</p>
-            </div>
-          </div>
+        <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white shadow-xl shadow-gray-200">
+          <div className="absolute -right-4 -top-4 text-9xl opacity-10">★</div>
+          <span className="inline-block rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold tracking-widest uppercase">
+            Current Event
+          </span>
+          <h2 className="mt-2 text-3xl font-extrabold leading-tight">{selectedEvent.name}</h2>
+          <p className="mt-1 text-xs font-medium text-white/70">達人のトークから学び、自分なりにアレンジしよう</p>
         </section>
 
-        <section className="grid grid-cols-1 gap-3">
+        <section className="grid grid-cols-2 gap-3">
           {selectedEvent.essentialKnowledge?.officialSiteUrl ? (
             <a
               href={selectedEvent.essentialKnowledge.officialSiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm hover:bg-gray-50 transition-colors"
+              className="bg-white rounded-3xl border border-gray-200 p-4 flex flex-col items-center text-center gap-2 shadow-sm hover:bg-gray-50 transition-colors"
             >
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Calendar className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                <Calendar className="w-5 h-5" />
               </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Event Info</span>
-                <p className="text-sm font-bold text-gray-900">今回のイベント詳細</p>
-                <span className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                  公式ページへ <ChevronRight className="w-3 h-3" />
-                </span>
-              </div>
+              <span className="text-xs font-bold">イベント詳細</span>
             </a>
           ) : (
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <Calendar className="w-6 h-6" />
+            <div className="bg-white rounded-3xl border border-gray-200 p-4 flex flex-col items-center text-center gap-2 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                <Calendar className="w-5 h-5" />
               </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Event Info</span>
-                <p className="text-sm font-bold text-gray-900">今回のイベント詳細</p>
-                <p className="text-[11px] text-gray-500 mt-1">公式情報は準備中です</p>
-              </div>
+              <span className="text-xs font-bold">イベント詳細</span>
             </div>
           )}
 
@@ -578,120 +582,150 @@ export default function Events() {
             href="https://www.eposcard.co.jp/gecard/ec00013/index.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm hover:bg-gray-50 transition-colors"
+            className="bg-white rounded-3xl border border-gray-200 p-4 flex flex-col items-center text-center gap-2 shadow-sm hover:bg-gray-50 transition-colors"
           >
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600">
-              <ExternalLink className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+              <ExternalLink className="w-5 h-5" />
             </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Related Card</span>
-              <p className="text-sm font-bold text-gray-900">関連カード</p>
-              <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">{selectedEvent.aiSummary}</p>
-              <span className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                カード詳細 <ChevronRight className="w-3 h-3" />
-              </span>
-            </div>
+            <span className="text-xs font-bold">関連カード</span>
           </a>
+        </section>
+
+        <section className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold leading-tight">運営からのコメント</p>
+                <p className="text-[11px] text-gray-400 font-semibold mt-0.5">
+                  {topPost.adminAuthor || '運営'}{topPost.adminUpdatedAt ? ` ・ ${topPost.adminUpdatedAt}` : ''}
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 border border-indigo-100">
+              改善ヒント
+            </span>
+          </div>
+          <div className="mt-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-[13px] whitespace-pre-wrap text-gray-700 leading-relaxed">
+              {topPost.adminComment || '運営コメントはまだありません。'}
+            </p>
+          </div>
         </section>
 
         <div className="flex items-center justify-between px-1">
           <h3 className="text-xl font-bold tracking-tight">達人の投稿</h3>
           <button
             onClick={() => setShowHookHelp(true)}
-            className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100"
+            className="text-[11px] font-bold text-blue-600 inline-flex items-center gap-1"
           >
-            口コミの構造
+            解説を見る <ChevronRight className="w-3 h-3" />
           </button>
         </div>
 
         <div className="space-y-6">
           {sortedPosts.map((post, idx) => {
-            const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📄';
+            const medalColor = idx === 0 ? 'text-yellow-500' : idx === 1 ? 'text-gray-400' : 'text-amber-600';
+            const borderColor = idx === 0 ? 'border-blue-500' : 'border-gray-300';
             return (
-              <div key={post.id} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-                <div className="flex justify-between items-start mb-5 gap-3">
+              <div key={post.id} className={`bg-white rounded-3xl border border-gray-200 border-l-8 ${borderColor} p-6 shadow-sm`}>
+                <div className="flex justify-between items-start mb-6 gap-3">
                   <div className="min-w-0">
-                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                      {post.eventName}
-                    </span>
-                    <h4 className="text-lg font-bold mt-1 truncate">
-                      {medal} {post.staffName}{' '}
-                      <span className="text-xs text-gray-400 font-normal">@{post.storeName}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[9px] font-black text-white bg-blue-600 px-2 py-0.5 rounded uppercase tracking-widest">
+                        {post.eventName}
+                      </span>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{post.storeName}</span>
+                    </div>
+                    <h4 className="text-xl font-bold flex items-center gap-2">
+                      <span className={medalColor}>●</span>
+                      {post.staffName}
                     </h4>
                   </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-50 border border-gray-200 text-xs font-bold text-gray-700">
-                    <ThumbsUp className="w-4 h-4" />
-                    役に立った({post.helpful})
-                  </div>
+                  <button className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 text-xs font-bold text-gray-700 active:scale-95 transition-transform">
+                    <ThumbsUp className="w-4 h-4 text-gray-500" />
+                    {post.helpful}
+                  </button>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🪝 フック</span>
+                <div className="space-y-4 mb-6">
+                  <div className="pl-4 border-l-[3px] border-orange-400">
+                    <span className="text-[10px] font-bold tracking-wider text-orange-500 uppercase">Hook / フック</span>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {post.hookWords.map((w, i) => (
-                        <span key={`${post.id}-hook-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-orange-50 text-orange-600 border border-orange-100">
+                        <span key={`${post.id}-hook-${i}`} className="px-3 py-1 text-[11px] font-semibold rounded-xl bg-orange-50 text-orange-700 border border-orange-100">
                           {w}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div>
-                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">📢 引き込み</span>
+                  <div className="pl-4 border-l-[3px] border-green-500">
+                    <span className="text-[10px] font-bold tracking-wider text-green-600 uppercase">Pitch / 引き込み</span>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {post.pitchWords.map((w, i) => (
-                        <span key={`${post.id}-pitch-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-green-50 text-green-700 border border-green-100">
+                        <span key={`${post.id}-pitch-${i}`} className="px-3 py-1 text-[11px] font-semibold rounded-xl bg-green-50 text-green-700 border border-green-100">
                           {w}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div>
-                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🧾 カード説明</span>
+                  <div className="pl-4 border-l-[3px] border-blue-500">
+                    <span className="text-[10px] font-bold tracking-wider text-blue-600 uppercase">Card / 説明</span>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {post.cardWords.map((w, i) => (
-                        <span key={`${post.id}-card-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+                        <span key={`${post.id}-card-${i}`} className="px-3 py-1 text-[11px] font-semibold rounded-xl bg-blue-50 text-blue-700 border border-blue-100">
                           {w}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-gray-100">
-                    <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">🏷 属性</span>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {post.tags.map((t, i) => (
-                        <span key={`${post.id}-tag-${i}`} className="px-2 py-1 text-[11px] font-semibold rounded-md bg-gray-50 text-gray-600 border border-gray-200">
-                          {t}
                         </span>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <details className="mt-6 pt-4 border-t border-gray-100">
-                  <summary className="flex justify-center items-center text-xs font-bold text-gray-600 cursor-pointer">
-                    全文を見る <ChevronRight className="w-3 h-3 ml-1" />
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-1.5">
+                    {post.tags.map((t, i) => (
+                      <span key={`${post.id}-tag-${i}`} className="px-2 py-1 text-[10px] font-semibold rounded-xl bg-gray-100 text-gray-600 border border-gray-200">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <details className="mt-5 pt-4 border-t border-gray-100 group">
+                  <summary className="list-none flex justify-center items-center gap-2 text-xs font-bold cursor-pointer">
+                    <span className="text-blue-600 group-open:hidden">トーク全文を読む</span>
+                    <span className="text-gray-400 hidden group-open:inline">閉じる</span>
+                    <ChevronRight className="w-3 h-3 text-blue-600 transition-transform group-open:rotate-90" />
                   </summary>
                   <div className="mt-4 space-y-4">
-                    <div className="bg-orange-50/50 p-4 rounded-xl text-sm leading-relaxed border border-orange-100/60">
-                      <p className="font-bold text-orange-500 text-[10px] uppercase mb-2">フック全文</p>
-                      <div className="whitespace-pre-wrap text-gray-700">{post.hookContent}</div>
+                    <div className="bg-orange-50/50 p-5 rounded-3xl text-sm leading-relaxed border border-orange-100/70">
+                      <p className="font-bold text-orange-500 text-[10px] uppercase mb-2 tracking-widest">Hook 全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.hookContent}</div>
                     </div>
-                    <div className="bg-green-50/50 p-4 rounded-xl text-sm leading-relaxed border border-green-100/60">
-                      <p className="font-bold text-green-600 text-[10px] uppercase mb-2">引き込み全文</p>
-                      <div className="whitespace-pre-wrap text-gray-700">{post.pitchContent}</div>
+                    <div className="bg-green-50/50 p-5 rounded-3xl text-sm leading-relaxed border border-green-100/70">
+                      <p className="font-bold text-green-600 text-[10px] uppercase mb-2 tracking-widest">Pitch 全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.pitchContent}</div>
                     </div>
-                    <div className="bg-blue-50/50 p-4 rounded-xl text-sm leading-relaxed border border-blue-100/60">
-                      <p className="font-bold text-blue-600 text-[10px] uppercase mb-2">説明全文</p>
-                      <div className="whitespace-pre-wrap text-gray-700">{post.cardContent}</div>
+                    <div className="bg-blue-50/50 p-5 rounded-3xl text-sm leading-relaxed border border-blue-100/70">
+                      <p className="font-bold text-blue-600 text-[10px] uppercase mb-2 tracking-widest">Info 全文</p>
+                      <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.cardContent}</div>
                     </div>
-                    <div className="bg-gray-100/50 p-4 rounded-xl text-sm leading-relaxed border border-gray-200/60">
-                      <p className="font-bold text-gray-500 text-[10px] uppercase mb-2">補足メモ</p>
-                      <div className="whitespace-pre-wrap text-gray-700">{post.memoContent}</div>
+                    <div className="bg-gray-100/60 p-5 rounded-3xl text-sm leading-relaxed border border-gray-200/70">
+                      <p className="font-bold text-gray-500 text-[10px] uppercase mb-2 tracking-widest">Memo / 補足メモ</p>
+                      <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.memoContent}</div>
                     </div>
+                    {post.adminComment && (
+                      <div className="bg-indigo-50/60 p-5 rounded-3xl text-sm leading-relaxed border border-indigo-100">
+                        <p className="font-bold text-indigo-600 text-[10px] uppercase mb-2 tracking-widest">
+                          Admin / 運営コメント {post.adminAuthor ? `・ ${post.adminAuthor}` : ''} {post.adminUpdatedAt ? `・ ${post.adminUpdatedAt}` : ''}
+                        </p>
+                        <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.adminComment}</div>
+                      </div>
+                    )}
                   </div>
                 </details>
               </div>
@@ -704,7 +738,7 @@ export default function Events() {
             href="https://docs.google.com/forms/d/1ZVv_aefg2sSfXiKEzNXprRJEb0C0tQiUAH50M_l-RAs/edit?usp=forms_home&ouid=117951192700997366273&ths=true"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white rounded-xl py-4 font-semibold shadow-lg shadow-blue-200 text-center"
+            className="bg-blue-600 text-white rounded-2xl py-4 font-semibold shadow-lg shadow-blue-200 text-center"
           >
             投稿
           </a>
@@ -712,7 +746,7 @@ export default function Events() {
             href="https://docs.google.com/forms/d/1P8QJ34C5Mt6PQq82GSrHhbm3K8mQK-gSNp33HA9at9k/edit"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white border border-gray-200 rounded-xl py-4 font-bold text-gray-700 text-center"
+            className="bg-white border border-gray-200 rounded-2xl py-4 font-bold text-gray-700 text-center"
           >
             アンケート
           </a>
@@ -724,14 +758,14 @@ export default function Events() {
         </div>
 
         {showHookHelp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6">
-            <div className="relative w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <button
-                onClick={() => setShowHookHelp(false)}
-                className="absolute top-3 right-3 z-10 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-semibold hover:bg-gray-800"
-              >
-                閉じる
-              </button>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6"
+            onClick={() => setShowHookHelp(false)}
+          >
+            <div
+              className="relative w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
               <iframe
                 title="口コミの構造"
                 srcDoc={HOOK_HELP_HTML}
@@ -805,73 +839,98 @@ export default function Events() {
           <div
             key={event.id}
             onClick={() => handleEventClick(event)}
-            className={`bg-white rounded-xl border p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group ${
+            className={`bg-white rounded-2xl border-2 p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group ${
               selectedParticipatingEvents.includes(event.id)
-                ? 'border-purple-200 bg-purple-50'
-                : 'border-gray-200'
+                ? 'border-purple-400 bg-purple-50/40'
+                : 'border-gray-300'
             }`}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(event.status)}`}>
+                    {getStatusLabel(event.status)}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-sky-50 text-sky-blue border border-sky-100">
+                    投稿数 {event.totalPosts}
+                  </span>
                   {selectedParticipatingEvents.includes(event.id) && (
-                    <span className="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
                       <Users className="w-3 h-3" />
                       <span>参加イベント</span>
                     </span>
                   )}
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-sky-blue transition-colors">
-                    {event.name}
-                  </h3>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(event.status)}`}>
-                    {getStatusLabel(event.status)}
-                  </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-sky-blue transition-colors">
+                  {event.name}
+                </h3>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-sky-blue transition-colors" />
+              <ChevronRight className="w-5 h-5 mt-1 text-gray-400 group-hover:text-sky-blue transition-colors shrink-0" />
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="text-center">
-                <div className="text-lg font-bold text-sky-blue">{event.totalPosts}</div>
-                <div className="text-xs text-gray-600">投稿数</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-bold text-success-green">{event.totalReactions}</div>
-                <div className="text-xs text-gray-600">リアクション</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-bold text-sunshine-yellow">{event.bestPractices.length}</div>
-                <div className="text-xs text-gray-600">ベスト事例</div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5 mb-3">
               {event.tags.slice(0, 3).map((tag, index) => (
-                <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                <span key={index} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg">
                   {tag}
                 </span>
               ))}
               {event.tags.length > 3 && (
-                <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
-                  +{event.tags.length - 3}件                </span>
+                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-medium rounded-lg">
+                  +{event.tags.length - 3}件
+                </span>
               )}
             </div>
 
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Calendar className="w-4 h-4" />
+            <div className="flex items-center justify-between text-sm text-gray-500 pt-3 border-t border-gray-100">
+              <div className="flex items-center space-x-1.5 min-w-0">
+                <Calendar className="w-4 h-4 shrink-0" />
                 <span>
                   {event.startDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })} - 
                   {event.endDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
                 </span>
               </div>
-              <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedStoresEventId((prev) => (prev === event.id ? null : event.id));
+                }}
+                aria-expanded={expandedStoresEventId === event.id}
+                className={`flex items-center gap-1.5 shrink-0 px-2 py-1 rounded-md border text-xs font-semibold transition-colors ${
+                  expandedStoresEventId === event.id
+                    ? 'text-sky-blue border-sky-200 bg-sky-50'
+                    : 'text-gray-600 border-gray-200 bg-white hover:text-sky-blue hover:border-sky-200'
+                }`}
+              >
                 <Users className="w-4 h-4" />
                 <span>{event.stores.length}店舗</span>
-              </div>
+                <span className="text-[10px] text-gray-400">表示</span>
+                <ChevronRight
+                  className={`w-3 h-3 transition-transform ${
+                    expandedStoresEventId === event.id ? 'rotate-90 text-sky-blue' : 'text-gray-400'
+                  }`}
+                />
+              </button>
             </div>
+
+            {expandedStoresEventId === event.id && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
+              >
+                <p className="text-[11px] font-semibold text-gray-500 mb-2">対象店舗</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {event.stores.map((store) => (
+                    <span
+                      key={`${event.id}-${store}`}
+                      className="px-2 py-1 rounded-md bg-white border border-gray-200 text-xs text-gray-700"
+                    >
+                      {store}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -899,14 +958,14 @@ export default function Events() {
             <h4 className="font-medium mb-1">学びのポイント</h4>
             <ul className="space-y-1">
               <li>・最新イベントの情報を確認</li>
-              <li>・ベスト事例を参考にする</li>
+              <li>・投稿事例を参考にする</li>
               <li>・使えるフレーズを覚える</li>
             </ul>
           </div>
           <div>
             <h4 className="font-medium mb-1">イベント投稿</h4>
             <ul className="space-y-1">
-              <li>・ベスト事例を確認</li>
+              <li>・投稿内容を確認</li>
               <li>・学びをコメントで共有</li>
               <li>・最新の投稿をチェック</li>
             </ul>

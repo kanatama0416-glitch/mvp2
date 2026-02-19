@@ -53,7 +53,7 @@ export default function Sidebar({
             <div className="w-5 h-5 flex items-center justify-center">
               <span className="text-xs">?</span>
             </div>
-            <span className="font-medium text-sm">はじめに戻る</span>
+            <span className="font-medium text-sm">初めに戻る</span>
           </button>
 
           <button
@@ -63,6 +63,7 @@ export default function Sidebar({
             <LogOut className="w-5 h-5" />
             <span className="font-medium text-sm">ログアウト</span>
           </button>
+
         </div>
       </nav>
     </aside>
