@@ -244,17 +244,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               <span>戻る</span>
             </button>
 
-            <div className="flex gap-2">
-              {slides.map((_, index) => (
-                <div
-                  key={index}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    index === currentSlide ? 'w-10 bg-slate-900' : 'w-2.5 bg-slate-300'
-                  }`}
-                />
-              ))}
-            </div>
-
             {currentSlide < slides.length - 1 ? (
               <button
                 onClick={nextSlide}
