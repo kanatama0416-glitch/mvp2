@@ -1,9 +1,7 @@
 ﻿import React from 'react';
-import { X, LogOut, BookOpen, FolderOpen } from 'lucide-react';
+import { LogOut, BookOpen, FolderOpen, RotateCcw } from 'lucide-react';
 
 interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
   activeTab: string;
   onTabChange: (tab: string) => void;
   onReturnToOnboarding: () => void;
@@ -11,95 +9,55 @@ interface MobileMenuProps {
 }
 
 const menuItems = [
-  { id: 'dashboard', label: '学習コンテンツ', icon: BookOpen },
-  { id: 'cases', label: 'ノウハウ集', icon: FolderOpen },
+  { id: 'dashboard', label: '学習', icon: BookOpen },
+  { id: 'cases', label: 'ノウハウ', icon: FolderOpen },
 ];
 
 export default function MobileMenu({
-  isOpen,
-  onClose,
   activeTab,
   onTabChange,
   onReturnToOnboarding,
   onLogout,
 }: MobileMenuProps) {
-  const handleTabChange = (tab: string) => {
-    onTabChange(tab);
-    onClose();
-  };
-
-  const handleReturnToOnboarding = () => {
-    onReturnToOnboarding();
-    onClose();
-  };
-
-  const handleLogout = () => {
-    onLogout();
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+    <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="grid grid-cols-4 gap-1 px-2 py-2 pb-[calc(env(safe-area-inset-bottom)+8px)]">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
 
-      <div className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
-        <div className="flex items-center justify-end p-4 border-b border-gray-200">
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <nav className="px-4 py-6">
-          <ul className="space-y-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => handleTabChange(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-4 rounded-lg text-left transition-all duration-200 ${
-                      isActive
-                        ? 'bg-red-50 text-vivid-red border border-red-200'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                  >
-                    <Icon className={`w-6 h-6 ${isActive ? 'text-vivid-red' : 'text-gray-400'}`} />
-                    <span className="font-medium text-base">{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          return (
             <button
-              onClick={handleReturnToOnboarding}
-              className="w-full flex items-center space-x-3 px-4 py-4 text-gray-400 hover:bg-gray-50 hover:text-gray-600 rounded-lg transition-all duration-200 mt-2"
+              key={item.id}
+              onClick={() => onTabChange(item.id)}
+              className={`flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 transition-colors ${
+                isActive
+                  ? 'text-vivid-red bg-red-50'
+                  : 'text-gray-500 hover:bg-gray-50'
+              }`}
             >
-              <div className="w-6 h-6 flex items-center justify-center">
-                <span className="text-sm">?</span>
-              </div>
-              <span className="font-medium text-base">はじめに戻る</span>
+              <Icon className="w-5 h-5" />
+              <span className="text-[11px] leading-none font-semibold">{item.label}</span>
             </button>
+          );
+        })}
 
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-4 text-gray-400 hover:bg-red-50 hover:text-vivid-red rounded-lg transition-all duration-200 mt-2"
-            >
-              <LogOut className="w-6 h-6" />
-              <span className="font-medium text-base">ログアウト</span>
-            </button>
+        <button
+          onClick={onReturnToOnboarding}
+          className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-gray-500 hover:bg-gray-50 transition-colors"
+        >
+          <RotateCcw className="w-5 h-5" />
+          <span className="text-[11px] leading-none font-semibold">はじめに</span>
+        </button>
 
-          </div>
-        </nav>
+        <button
+          onClick={onLogout}
+          className="flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-gray-500 hover:bg-red-50 hover:text-vivid-red transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-[11px] leading-none font-semibold">ログアウト</span>
+        </button>
       </div>
-    </div>
+    </nav>
   );
 }

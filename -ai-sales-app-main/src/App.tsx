@@ -9,7 +9,6 @@ import MobileMenu from './components/Layout/MobileMenu';
 import Dashboard from './components/Dashboard/Dashboard';
 import Simulation from './components/Simulation/Simulation';
 import Evaluation from './components/Evaluation/Evaluation';
-import Achievements from './components/Achievements/Achievements';
 import Community from './components/Community/Community';
 import Events from './components/Events/Events';
 import Profile from './components/Profile/Profile';
@@ -19,24 +18,21 @@ import * as authService from './services/authService';
 function App() {
   const { user, isAuthenticated, isLoading, login, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [openCasesHookHelpOnLoad, setOpenCasesHookHelpOnLoad] = useState(false);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
 
-  // 隱崎ｨｼ迥ｶ諷九・隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ
   if (isLoading) {
     return (
       <div className="min-h-screen bg-light-gray flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-sky-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</p>
+          <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
     );
   }
 
-    // 新規登録処理
   const handleSignup = async (
     name: string,
     email: string,
@@ -61,7 +57,6 @@ function App() {
     return false;
   };
 
-  // 譛ｪ隱崎ｨｼ縺ｮ蝣ｴ蜷医・隱崎ｨｼ逕ｻ髱｢繧定｡ｨ遉ｺ
   if (!isAuthenticated) {
     if (authView === 'signup') {
       return (
@@ -100,7 +95,7 @@ function App() {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
-      const getTabTitle = (tab: string): string => {
+  const getTabTitle = (tab: string): string => {
     const titles: Record<string, string> = {
       dashboard: 'Dashboard',
       simulation: 'Simulation',
@@ -111,7 +106,8 @@ function App() {
     };
     return titles[tab] || 'App';
   };
-const renderContent = () => {
+
+  const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard onNavigateToSimulation={() => setActiveTab('simulation')} />;
@@ -139,32 +135,30 @@ const renderContent = () => {
 
   return (
     <div className="min-h-screen bg-light-gray overflow-x-hidden">
-      <Header 
-        title={getTabTitle(activeTab)} 
-        onMenuToggle={() => setIsMobileMenuOpen(true)}
+      <Header
+        title={getTabTitle(activeTab)}
+        onMenuToggle={() => {}}
         onProfileClick={() => setActiveTab('profile')}
         onLogout={handleLogout}
         user={user}
       />
-      
+
       <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onReturnToOnboarding={handleReturnToOnboarding}
         onLogout={handleLogout}
       />
-      
+
       <div className="flex">
-        <Sidebar 
-          activeTab={activeTab} 
+        <Sidebar
+          activeTab={activeTab}
           onTabChange={setActiveTab}
           onReturnToOnboarding={handleReturnToOnboarding}
           onLogout={handleLogout}
         />
-        
-        <main className="flex-1 w-full p-4 sm:p-6 max-w-7xl mx-auto overflow-x-hidden">
+
+        <main className="flex-1 w-full p-4 sm:p-6 pb-24 lg:pb-6 max-w-7xl mx-auto overflow-x-hidden">
           {renderContent()}
         </main>
       </div>

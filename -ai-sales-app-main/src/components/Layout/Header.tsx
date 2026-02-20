@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { User, Menu, LogOut } from 'lucide-react';
 
 interface HeaderProps {
@@ -23,11 +23,11 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
         <div className="flex items-center space-x-4">
           <button
             onClick={onMenuToggle}
-            className="lg:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="hidden p-2 text-gray-400 hover:text-gray-600 transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
-          
+
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-vivid-red rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
@@ -37,16 +37,16 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
           <div className="hidden md:block w-px h-6 bg-gray-300" />
           <h2 className="hidden md:block text-base lg:text-lg text-gray-700">{title}</h2>
         </div>
-        
+
         <div className="flex items-center space-x-4">
-          <button 
+          <button
             onClick={onLogout}
             className="p-2 text-gray-400 hover:text-vivid-red transition-colors hidden sm:block"
             title="ログアウト"
           >
             <LogOut className="w-5 h-5" />
           </button>
-          
+
           <div className="flex items-center space-x-2 sm:space-x-3 sm:pl-4 sm:border-l border-gray-200">
             <button
               onClick={onProfileClick}
