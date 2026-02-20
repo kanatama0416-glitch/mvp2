@@ -297,6 +297,8 @@ const animeEvents: Event[] = [
   }
 ];
 
+export const EVENT_TITLE_OPTIONS = animeEvents.map((event) => event.name);
+
 type FilterStatus = 'all' | 'active' | 'completed' | 'upcoming' | 'my-events';
 
 export default function Events() {
@@ -615,13 +617,16 @@ export default function Events() {
           </div>
         </section>
 
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xl font-bold tracking-tight">達人の投稿</h3>
+        <div className="px-1 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold tracking-tight">達人の投稿</h3>
+          </div>
           <button
             onClick={() => setShowHookHelp(true)}
-            className="text-[11px] font-bold text-blue-600 inline-flex items-center gap-1"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-2xl py-3 bg-sky-blue text-white font-bold shadow-lg shadow-sky-200 hover:bg-blue-600 transition-colors"
           >
-            解説を見る <ChevronRight className="w-3 h-3" />
+            口コミの構造を見る
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
@@ -925,30 +930,6 @@ export default function Events() {
         </div>
       )}
 
-      
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-        <h3 className="font-semibold text-sky-blue mb-2">イベントページの使い方</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
-          <div>
-            <h4 className="font-medium mb-1">学びのポイント</h4>
-            <ul className="space-y-1">
-              <li>・最新イベントの情報を確認</li>
-              <li>・投稿事例を参考にする</li>
-              <li>・使えるフレーズを覚える</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-medium mb-1">イベント投稿</h4>
-            <ul className="space-y-1">
-              <li>・投稿内容を確認</li>
-              <li>・学びをコメントで共有</li>
-              <li>・最新の投稿をチェック</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      
       {showEventSelectionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -1246,6 +1227,7 @@ export default function Events() {
     </div>
   );
 }
+
 
 
 

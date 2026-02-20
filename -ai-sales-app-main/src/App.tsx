@@ -80,11 +80,6 @@ function App() {
     setOpenCasesHookHelpOnLoad(nextTab === 'cases');
   };
 
-  const handleReturnToOnboarding = () => {
-    setShowOnboarding(true);
-    setActiveTab('dashboard');
-  };
-
   const handleLogout = () => {
     logout();
     setShowOnboarding(true);
@@ -146,16 +141,12 @@ function App() {
       <MobileMenu
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onReturnToOnboarding={handleReturnToOnboarding}
-        onLogout={handleLogout}
       />
 
       <div className="flex">
         <Sidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onReturnToOnboarding={handleReturnToOnboarding}
-          onLogout={handleLogout}
         />
 
         <main className="flex-1 w-full p-4 sm:p-6 pb-24 lg:pb-6 max-w-7xl mx-auto overflow-x-hidden">

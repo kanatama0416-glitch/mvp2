@@ -45,7 +45,7 @@ export default function CasesCollection({
       <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           onClick={handleOpenHookHelp}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-sky-200 bg-white text-sky-blue font-semibold shadow-sm hover:bg-sky-50 transition-colors"
+          className="inline-flex min-w-[220px] items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-sky-blue text-white font-bold shadow-lg shadow-sky-200 hover:bg-blue-600 transition-colors"
         >
           <BookOpen className="w-5 h-5" />
           口コミの構造
@@ -53,7 +53,7 @@ export default function CasesCollection({
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-vivid-red text-white font-bold shadow-lg hover:bg-red-600 transition-all"
+          className="inline-flex min-w-[220px] items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-vivid-red text-white font-bold shadow-lg shadow-red-200 hover:bg-red-600 transition-colors"
         >
           <Plus className="w-5 h-5" />
           投稿

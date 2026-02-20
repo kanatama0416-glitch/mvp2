@@ -38,30 +38,28 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
           <h2 className="hidden md:block text-base lg:text-lg text-gray-700">{title}</h2>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-3 sm:pl-4 sm:border-l border-gray-200">
           <button
             onClick={onLogout}
-            className="p-2 text-gray-400 hover:text-vivid-red transition-colors hidden sm:block"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs sm:text-sm text-gray-500 hover:bg-red-50 hover:text-vivid-red transition-colors"
             title="ログアウト"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4" />
+            <span>ログアウト</span>
           </button>
-
-          <div className="flex items-center space-x-2 sm:space-x-3 sm:pl-4 sm:border-l border-gray-200">
-            <button
-              onClick={onProfileClick}
-              className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-1 transition-colors"
-            >
-              <img
-                src={user?.avatar || 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
-                alt={user?.name || 'ユーザー'}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover"
-              />
-            </button>
-            <div className="hidden sm:block">
-              <div className="text-xs sm:text-sm font-medium text-gray-900">{user?.name}</div>
-              <div className="text-xs text-gray-500">{user?.department}</div>
-            </div>
+          <button
+            onClick={onProfileClick}
+            className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-1 transition-colors"
+          >
+            <img
+              src={user?.avatar || 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
+              alt={user?.name || 'ユーザー'}
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover"
+            />
+          </button>
+          <div className="hidden sm:block">
+            <div className="text-xs sm:text-sm font-medium text-gray-900">{user?.name}</div>
+            <div className="text-xs text-gray-500">{user?.department}</div>
           </div>
         </div>
       </div>
