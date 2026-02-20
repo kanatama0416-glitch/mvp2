@@ -1,12 +1,26 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Plus, BookOpen } from 'lucide-react';
 import Events from '../Events/Events';
 import PostModal, { PostFormData } from './PostModal';
 import { HOOK_HELP_HTML } from '../shared/hookHelpHtml';
 
-export default function CasesCollection() {
+interface CasesCollectionProps {
+  initialShowHookHelp?: boolean;
+  onInitialHookHelpHandled?: () => void;
+}
+
+export default function CasesCollection({
+  initialShowHookHelp = false,
+  onInitialHookHelpHandled,
+}: CasesCollectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showHookHelp, setShowHookHelp] = useState(false);
+  const [showHookHelp, setShowHookHelp] = useState(initialShowHookHelp);
+
+  useEffect(() => {
+    if (!initialShowHookHelp) return;
+    setShowHookHelp(true);
+    onInitialHookHelpHandled?.();
+  }, [initialShowHookHelp, onInitialHookHelpHandled]);
 
   const handleSubmitPost = async (_data: PostFormData) => {
     try {

@@ -21,6 +21,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [openCasesHookHelpOnLoad, setOpenCasesHookHelpOnLoad] = useState(false);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
 
   // 隱崎ｨｼ迥ｶ諷九・隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ
@@ -81,6 +82,7 @@ function App() {
   const handleOnboardingComplete = (nextTab: string = 'evaluation') => {
     setShowOnboarding(false);
     setActiveTab(nextTab);
+    setOpenCasesHookHelpOnLoad(nextTab === 'cases');
   };
 
   const handleReturnToOnboarding = () => {
@@ -122,7 +124,12 @@ const renderContent = () => {
       case 'community':
         return <Community />;
       case 'cases':
-        return <CasesCollection />;
+        return (
+          <CasesCollection
+            initialShowHookHelp={openCasesHookHelpOnLoad}
+            onInitialHookHelpHandled={() => setOpenCasesHookHelpOnLoad(false)}
+          />
+        );
       case 'profile':
         return <Profile />;
       default:
