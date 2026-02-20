@@ -781,31 +781,6 @@ export default function Events() {
   return (
     <div className="space-y-6">
 
-      {/* 邨ｱ險域ュ蝣ｱ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <button
-          onClick={() => setShowEventSelectionModal(true)}
-          className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-purple-600 hover:shadow-md transition-all"
-        >
-          <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-          <div className="text-xl font-bold text-gray-900">
-            {selectedParticipatingEvents.length}
-          </div>
-          <div className="text-sm text-gray-600">参加イベント数</div>
-          <div className="text-xs text-purple-600 mt-1">クリックして確認</div>
-        </button>
-        <button
-          onClick={() => setShowAllEventsModal(true)}
-          className="bg-white rounded-xl border border-gray-200 p-4 text-center hover:border-sky-blue hover:shadow-md transition-all"
-        >
-          <Calendar className="w-8 h-8 text-sky-blue mx-auto mb-2" />
-          <div className="text-xl font-bold text-gray-900">{eventsSource.length}</div>
-          <div className="text-sm text-gray-600">総イベント数</div>
-          <div className="text-xs text-sky-blue mt-1">クリックして過去イベントを確認</div>
-        </button>
-      </div>
-
-      
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
           <div className="flex-1 relative">

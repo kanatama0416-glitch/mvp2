@@ -225,7 +225,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   onClick={() => onComplete('cases')}
                   className="group relative inline-flex items-center gap-3 px-12 py-5 bg-red-500 text-white text-xl font-black rounded-2xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_15px_30px_rgba(239,68,68,0.4)] active:scale-95"
                 >
-                  イベントノウハウをみる
+                  ノウハウをみる
                   <ChevronRight className="group-hover:translate-x-2 transition-transform" />
                 </button>
               </div>
