@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { User, Menu, LogOut } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
@@ -29,9 +29,11 @@ export default function Header({ title, onMenuToggle, onProfileClick, onLogout, 
           </button>
 
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-vivid-red rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src={`${import.meta.env.BASE_URL}app-icon.png?v=3`}
+              alt="まなびー アイコン"
+              className="w-8 h-8 rounded-lg object-cover"
+            />
             <h1 className="text-lg sm:text-xl font-semibold text-gray-900">まなびー</h1>
           </div>
           <div className="hidden md:block w-px h-6 bg-gray-300" />

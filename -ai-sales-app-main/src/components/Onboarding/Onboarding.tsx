@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   ChevronRight,
   ChevronLeft,
@@ -6,14 +6,13 @@ import {
   Search,
   Sparkles,
   Zap,
-  Layout,
   ArrowDown,
   Layers,
   MousePointer2,
   FileText,
   CreditCard,
   Calendar,
-  ShieldCheck
+  ShieldCheck,
 } from 'lucide-react';
 
 interface OnboardingProps {
@@ -28,30 +27,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       id: 1,
       title: 'ようこそ！',
       subtitle: '口コミ応援アプリ\n「まなびー」へ',
-      description: 'あなたの「伝えたい」という想いを、確かなスキルに変えるパートナーです。',
+      description: '現場で使えるノウハウを、短時間で分かりやすく学べます。',
       bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-100',
     },
     {
       id: 2,
       title: '情報をひとつに',
-      subtitle: '探す時間を、向き合う時間へ',
-      description: '情報をまとめ、探す時間を向き合う時間へ',
+      subtitle: '情報をまとめ、探す時間を向き合う時間へ',
+      description: '必要な情報を素早く確認して、接客に集中できる状態をつくります。',
       bgColor: 'bg-gradient-to-br from-white to-sky-50',
     },
     {
       id: 3,
-      title: '達人のコツを、\n構造で学ぶ',
-      subtitle: '「感覚」を「理論」に分解しました',
-      description: '口コミの達人の思考プロセスを分解。だから、誰でも今日から実践できます。',
+      title: '伝わるコツを、順番で学ぶ',
+      subtitle: '「口コミの構造」を実践に落とし込む',
+      description: 'フック・引き込み・カード説明の流れを理解して、再現性のある接客へ。',
       bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
     },
     {
       id: 4,
-      title: '準備は万端！',
-      subtitle: '「好き」を応援する活動を始めましょう',
-      description: 'まずはイベントのノウハウを確認してみましょう！',
+      title: '準備は完了！',
+      subtitle: 'さっそく始めましょう',
+      description: 'ノウハウ集で実例を見ながら、明日から使える接客を身につけましょう。',
       bgColor: 'bg-gradient-to-br from-green-50 to-teal-50',
-    }
+    },
   ];
 
   const nextSlide = () => {
@@ -70,10 +69,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 font-sans text-slate-900">
-      {/* 共通のカードスタイル */}
-      <div className={`w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 ${currentSlideData.bgColor} border-4 border-white`}>
+      <div
+        className={`w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 ${currentSlideData.bgColor} border-4 border-white`}
+      >
         <div className="relative min-h-[600px] flex flex-col">
-          {/* Progress Bar */}
           <div className="absolute top-6 left-12 right-12 h-1.5 bg-black/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-red-500 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(239,68,68,0.5)]"
@@ -82,33 +81,32 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           </div>
 
           <div className="flex-1 p-8 sm:p-12 flex flex-col justify-center">
-            {/* Slide 1: Welcome */}
             {currentSlide === 0 && (
               <div className="text-center space-y-6">
-                <div className="w-24 h-24 bg-red-500 rounded-[2rem] rotate-12 flex items-center justify-center mx-auto shadow-xl">
-                  <Sparkles className="w-12 h-12 text-white -rotate-12" />
-                </div>
+                <img
+                  src={`${import.meta.env.BASE_URL}app-icon.png?v=3`}
+                  alt="まなびー アイコン"
+                  className="w-24 h-24 rounded-[1.5rem] mx-auto shadow-xl object-cover"
+                />
                 <h1 className="text-5xl font-black tracking-tight whitespace-pre-line">{currentSlideData.title}</h1>
                 <h2 className="text-2xl font-bold text-blue-600 whitespace-pre-line">{currentSlideData.subtitle}</h2>
                 <p className="text-lg text-slate-500 max-w-md mx-auto">{currentSlideData.description}</p>
               </div>
             )}
 
-            {/* Slide 2: 情報が、ひとつに（収束アニメーション） */}
             {currentSlide === 1 && (
               <div className="text-center relative">
                 <h1 className="text-4xl font-black mb-2 whitespace-pre-line">{currentSlideData.title}</h1>
                 <p className="text-slate-500 mb-12">{currentSlideData.description}</p>
 
                 <div className="relative h-64 w-64 mx-auto flex items-center justify-center">
-                  {/* 周辺から集まるアイコン達 */}
                   {[Search, MessageCircle, Zap, FileText, CreditCard, Calendar].map((Icon, i) => (
                     <div
                       key={i}
                       className="absolute animate-pulse"
                       style={{
                         animation: `converge 2s infinite ease-in-out ${i * 0.2}s`,
-                        opacity: 0
+                        opacity: 0,
                       }}
                     >
                       <div className="p-3 bg-white rounded-full shadow-md text-blue-400">
@@ -117,80 +115,75 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     </div>
                   ))}
 
-                  {/* 中心点：まなびーロゴ */}
-                  <div className="z-10 w-24 h-24 bg-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-2xl border-4 border-white">
-                    <Layout className="text-white w-12 h-12" />
+                  <div className="z-10 w-24 h-24 rounded-[1.5rem] flex items-center justify-center shadow-2xl border-4 border-white overflow-hidden bg-white">
+                    <img
+                      src={`${import.meta.env.BASE_URL}app-icon.png?v=3`}
+                      alt="まなびー アイコン"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
-                  {/* 背景の波紋 */}
-                  <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping"></div>
+                  <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping" />
                 </div>
 
                 <style
                   dangerouslySetInnerHTML={{
                     __html: `
-                  @keyframes converge {
-                    0% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1.2); opacity: 0; }
-                    20% { opacity: 1; }
-                    80% { transform: translate(0, 0) scale(0.5); opacity: 0.5; }
-                    100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
-                  }
-                  .absolute:nth-child(1) { --tw-translate-x: -120px; --tw-translate-y: -100px; }
-                  .absolute:nth-child(2) { --tw-translate-x: 120px; --tw-translate-y: -80px; }
-                  .absolute:nth-child(3) { --tw-translate-x: -140px; --tw-translate-y: 60px; }
-                  .absolute:nth-child(4) { --tw-translate-x: 140px; --tw-translate-y: 80px; }
-                  .absolute:nth-child(5) { --tw-translate-x: 0px; --tw-translate-y: -150px; }
-                  .absolute:nth-child(6) { --tw-translate-x: 0px; --tw-translate-y: 150px; }
-                `
+                    @keyframes converge {
+                      0% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1.2); opacity: 0; }
+                      20% { opacity: 1; }
+                      80% { transform: translate(0, 0) scale(0.5); opacity: 0.5; }
+                      100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+                    }
+                    .absolute:nth-child(1) { --tw-translate-x: -120px; --tw-translate-y: -100px; }
+                    .absolute:nth-child(2) { --tw-translate-x: 120px; --tw-translate-y: -80px; }
+                    .absolute:nth-child(3) { --tw-translate-x: -140px; --tw-translate-y: 60px; }
+                    .absolute:nth-child(4) { --tw-translate-x: 140px; --tw-translate-y: 80px; }
+                    .absolute:nth-child(5) { --tw-translate-x: 0px; --tw-translate-y: -150px; }
+                    .absolute:nth-child(6) { --tw-translate-x: 0px; --tw-translate-y: 150px; }
+                  `,
                   }}
                 />
               </div>
             )}
 
-            {/* Slide 3: ノウハウ分解（構造化） */}
             {currentSlide === 2 && (
               <div className="text-center flex flex-col items-center">
                 <h1 className="text-3xl font-black mb-2 whitespace-pre-line">{currentSlideData.title}</h1>
                 <h2 className="text-lg font-bold text-orange-600 mb-8">{currentSlideData.subtitle}</h2>
-                
+
                 <div className="w-full max-w-md space-y-4">
-                  {/* 分解プロセス図：もくもく雲デザイン */}
                   <div className="relative mx-auto w-fit py-4">
-                    {/* 背景の装飾小円（もくもくの泡） */}
                     <div className="absolute -left-2 top-2 h-4 w-4 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.1s' }} />
                     <div className="absolute -right-1 top-4 h-3 w-3 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.3s' }} />
                     <div className="absolute left-1/2 -top-2 h-3 w-3 rounded-full bg-white shadow-sm animate-bounce" style={{ animationDelay: '0.5s' }} />
-                    
-                    {/* メインのもくもく雲（SVGパス） */}
+
                     <div className="relative flex items-center justify-center">
                       <svg className="absolute w-[200px] h-[100px] text-white drop-shadow-md" viewBox="0 0 200 100" fill="currentColor">
-                        <path d="M158.4,45.9c0-12.7-10.3-23-23-23c-1.8,0-3.6,0.2-5.3,0.6c-4.4-8.8-13.4-14.8-23.9-14.8c-10.3,0-19.1,5.8-23.6,14.3
-              c-2.4-1.2-5.1-1.9-8-1.9c-8.9,0-16.3,6.5-17.7,15c-1.2-0.2-2.5-0.3-3.8-0.3c-10,0-18.1,8.1-18.1,18.1c0,10,8.1,18.1,18.1,18.1
-              c1.2,0,2.3-0.1,3.4-0.3c3.6,8,11.7,13.6,21.1,13.6c2.8,0,5.4-0.5,7.8-1.4c4.6,7.5,13,12.5,22.5,12.5c10.3,0,19.3-5.8,23.8-14.5
-              c1.8,0.5,3.7,0.8,5.7,0.8c12.7,0,23-10.3,23-23C161.7,55.3,160.4,50.2,158.4,45.9z" />
+                        <path d="M158.4,45.9c0-12.7-10.3-23-23-23c-1.8,0-3.6,0.2-5.3,0.6c-4.4-8.8-13.4-14.8-23.9-14.8c-10.3,0-19.1,5.8-23.6,14.3c-2.4-1.2-5.1-1.9-8-1.9c-8.9,0-16.3,6.5-17.7,15c-1.2-0.2-2.5-0.3-3.8-0.3c-10,0-18.1,8.1-18.1,18.1c0,10,8.1,18.1,18.1,18.1c1.2,0,2.3-0.1,3.4-0.3c3.6,8,11.7,13.6,21.1,13.6c2.8,0,5.4-0.5,7.8-1.4c4.6,7.5,13,12.5,22.5,12.5c10.3,0,19.3-5.8,23.8-14.5c1.8,0.5,3.7,0.8,5.7,0.8c12.7,0,23-10.3,23-23C161.7,55.3,160.4,50.2,158.4,45.9z" />
                       </svg>
-                      
+
                       <div className="relative z-10 px-8 py-6">
-                        <span className="text-xs font-bold text-orange-500 uppercase tracking-widest block">達人の</span>
-                        <span className="text-xl font-black text-orange-600 tracking-tighter">「感覚」</span>
+                        <span className="text-xs font-bold text-orange-500 uppercase tracking-widest block">口コミの</span>
+                        <span className="text-xl font-black text-orange-600 tracking-tighter">構造</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <ArrowDown className="text-orange-400 animate-bounce mx-auto" />
-                  
+
                   <div className="grid grid-cols-3 gap-3">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-500">
                       <Layers className="mx-auto mb-2 text-blue-500" size={20} />
-                      <div className="text-xs font-bold">要素に<br/>分ける</div>
+                      <div className="text-xs font-bold">興味を<br />引く</div>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500">
                       <MousePointer2 className="mx-auto mb-2 text-green-500" size={20} />
-                      <div className="text-xs font-bold">手順を<br/>整理</div>
+                      <div className="text-xs font-bold">理解を<br />深める</div>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-red-500">
                       <Sparkles className="mx-auto mb-2 text-red-500" size={20} />
-                      <div className="text-xs font-bold">コツを<br/>可視化</div>
+                      <div className="text-xs font-bold">行動に<br />つなげる</div>
                     </div>
                   </div>
 
@@ -198,14 +191,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
                   <div className="bg-orange-500 p-4 rounded-2xl shadow-lg transform scale-105">
                     <div className="text-white font-bold flex items-center justify-center gap-2">
-                      <ShieldCheck /> 誰でも実践しやすいノウハウに！
+                      <ShieldCheck /> 実践で使えるノウハウに
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Slide 4: CTA */}
             {currentSlide === 3 && (
               <div className="text-center space-y-8">
                 <div className="relative inline-block">
@@ -225,14 +217,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   onClick={() => onComplete('cases')}
                   className="group relative inline-flex items-center gap-3 px-12 py-5 bg-red-500 text-white text-xl font-black rounded-2xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_15px_30px_rgba(239,68,68,0.4)] active:scale-95"
                 >
-                  ノウハウをみる
+                  ノウハウを見る
                   <ChevronRight className="group-hover:translate-x-2 transition-transform" />
                 </button>
               </div>
             )}
           </div>
 
-          {/* Navigation Bottom */}
           <div className="px-12 py-10 flex items-center justify-between">
             <button
               onClick={prevSlide}
@@ -253,7 +244,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <ChevronRight size={20} />
               </button>
             ) : (
-              <div className="w-24"></div>
+              <div className="w-24" />
             )}
           </div>
         </div>

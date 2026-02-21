@@ -14,12 +14,16 @@ export default function CasesCollection({
   onInitialHookHelpHandled,
 }: CasesCollectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showHookHelp, setShowHookHelp] = useState(initialShowHookHelp);
+  const [showHookHelp, setShowHookHelp] = useState(false);
 
   useEffect(() => {
     if (!initialShowHookHelp) return;
-    setShowHookHelp(true);
-    onInitialHookHelpHandled?.();
+    const timer = setTimeout(() => {
+      setShowHookHelp(true);
+      onInitialHookHelpHandled?.();
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [initialShowHookHelp, onInitialHookHelpHandled]);
 
   const handleSubmitPost = async (_data: PostFormData) => {
