@@ -4,7 +4,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>口コミの構造ガイド</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"><\/script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     body {
@@ -67,7 +67,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
         <i class="fa-solid fa-wand-magic-sparkles text-orange-500 text-xl"></i>
       </div>
       <p class="text-sm font-bold text-gray-600 leading-snug">
-        「心の壁を溶かす → 興味を持つ → 納得する」<br>この流れが「達人」の必勝パターン！
+        「心の壁を溶かす → 興味を持つ → 納得する」<br>この流れが「達人」のパターン！
       </p>
     </div>
   </div>
@@ -83,7 +83,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
           アイスブレイク
         </h2>
         <p class="mt-2 text-sm font-bold text-gray-700 leading-relaxed">
-          いきなり本題に入らず、<span class="text-pink-600">まずは何気ない雑談</span>から。心の壁を溶かす魔法の10秒です。
+          いきなり本題に入らず、<span class="text-pink-600">まずは何気ない雑談</span>から。<br>お客様との会話を楽しむ土台を整えましょう。
         </p>
       </div>
     </div>
@@ -97,7 +97,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
           フック
         </h2>
         <p class="mt-2 text-sm font-bold text-gray-700 leading-relaxed">
-          会話の流れで、自然にカードの話題へ。<span class="text-orange-600">相手の関心をこちらに向ける</span>きっかけ作り。
+          会話の流れで、自然にカードの話題へ。<span class="text-orange-600"><br>相手の関心をこちらに向ける</span>きっかけ作り。
         </p>
       </div>
     </div>
@@ -111,7 +111,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
           引き込み
         </h2>
         <p class="mt-2 text-sm font-bold text-gray-700 leading-relaxed">
-          相手のメリットを提示。<span class="text-green-600">「私にとってお得！」</span>と自分事にしてもらいます。
+          相手のメリットを提示。<span class="text-green-600"><br>「私にとってお得！」</span>と自分事にしてもらいます。
         </p>
       </div>
     </div>
@@ -125,7 +125,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
           カード説明
         </h2>
         <p class="mt-2 text-sm font-bold text-gray-700 leading-relaxed">
-          最後に、ずっと無料などの安心材料を説明。<span class="text-blue-600">「じゃあ作ろうかな」</span>を後押しします。
+          最後に、ずっと無料などの安心材料を説明。<span class="text-blue-600"><br>「じゃあ作ろうかな」</span>を後押しします。
         </p>
       </div>
     </div>
@@ -160,7 +160,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
         <div class="flex gap-3">
           <div class="shrink-0 w-8 h-8 rounded-full border border-blue-500/50 flex items-center justify-center text-[10px] font-bold text-blue-400 mt-1">3</div>
           <div class="bubble">
-            <p class="text-sm font-bold text-gray-800">「入会・年会費はずっと無料です。5分で作れますが、お作りしましょうか？」</p>
+            <p class="text-sm font-bold text-gray-800">「入会・年会費はずっと無料です。<br>20分で作れますが、お作りしましょうか？」</p>
           </div>
         </div>
       </div>
@@ -178,7 +178,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
             まずは笑顔で！
           </p>
           <p class="text-xs font-medium opacity-80 leading-relaxed ml-3.5">
-            雑談でお客様との距離を縮めるのが成功の近道。
+            雑談でお客さまとの距離を縮めるのが成功の近道。
           </p>
         </div>
         <div>
@@ -196,7 +196,7 @@ export const HOOK_HELP_HTML = `<!DOCTYPE html>
             共感する
           </p>
           <p class="text-xs font-medium opacity-80 leading-relaxed ml-3.5">
-            「楽しみですね！」「可愛いですよね！」を大切に。
+            お客さまの気持ちに寄り添いながら、「楽しみですね！」「可愛いですよね！」を大切に。
           </p>
         </div>
       </div>

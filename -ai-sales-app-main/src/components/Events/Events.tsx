@@ -15,6 +15,7 @@ import EventPostForm from './EventPostForm';
 import { useAuth } from '../../hooks/useAuth';
 import { saveUserParticipatingEvents, getUserParticipatingEvents } from '../../services/eventService';
 import { HOOK_HELP_HTML } from '../shared/hookHelpHtml';
+import { fetchRawCasePosts, RawCasePost } from '../../services/casePostService';
 
 interface Event {
   id: string;
@@ -301,7 +302,7 @@ export const EVENT_TITLE_OPTIONS = animeEvents.map((event) => event.name);
 
 type FilterStatus = 'all' | 'active' | 'completed' | 'upcoming' | 'my-events';
 
-export default function Events() {
+export default function Events({ refreshKey = 0 }: { refreshKey?: number }) {
   const { user, updateUser } = useAuth();
   const [viewMode, setViewMode] = useState<ViewModeWithCreate>('list');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -317,6 +318,7 @@ export default function Events() {
   const [allEventsFilterArea, setAllEventsFilterArea] = useState<string>('all');
   const [allEventsFilterYear, setAllEventsFilterYear] = useState<string>('all');
   const [expandedStoresEventId, setExpandedStoresEventId] = useState<string | null>(null);
+  const [dbPosts, setDbPosts] = useState<RawCasePost[]>([]);
   const eventsSource = animeEvents;
 
   // ユーザーの参加イベントを取得
@@ -340,6 +342,11 @@ export default function Events() {
     window.addEventListener('message', handleHookHelpMessage);
     return () => window.removeEventListener('message', handleHookHelpMessage);
   }, []);
+
+  // DB投稿を取得（マウント時・投稿後に即時反映）
+  useEffect(() => {
+    fetchRawCasePosts().then(setDbPosts).catch(() => setDbPosts([]));
+  }, [refreshKey]);
 
   const filteredEvents = eventsSource.filter(event => {
     const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -371,6 +378,7 @@ export default function Events() {
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
     setViewMode('detail');
+    window.scrollTo(0, 0);
   };
 
   const handleBackToList = () => {
@@ -494,7 +502,7 @@ export default function Events() {
       pitchContent: `【引き込み】\nはじめの聞き方でお客様が持っていないと分かったら18歳以上高校卒業されている事を確認してから\n「今回このイベントに合わせてキャンペーンをやっていて、スマホから無料で入会して頂くと入場料分をこちらのお会計から3000円割引きさせて頂くのと、抽選会のB賞のブロマイド8枚コンプリートセットを会場で作って頂いた方に抽選会前にプレゼントしてるので作ってからお会計しませんか？」とさらに関心を高めます。`,
       cardContent: `【カード説明】\n「VISAの付いたマルイグループが発行しているクレジットカードで入会金・年会費や更新費など一切かからないので安心してお申し込み出来ます」「アーティストやアニメのイベントをマルイは年間で300タイトル以上やっているのでカード持っているとまた次回のイベントの時にご提示して現金払いでも抽選出来たり特典多くもらったり出来るので今日作ったカード払いでこの場で3000円引きで○○○円でお得にお買い物していきませんか？」\n※ここで作りますとなったらお時間20分くらい大丈夫ですか？や免許やマイナンバーなどお名前入ってる物お持ちですか？や今日カードが作れたらそのカードでお支払いして下さいね。など確認してご案内します。\n※ここまでお話しして断ったり、お時間ない方には無理おすすめせず「じゃ、またの機会にお願いしますね」とさっさと精算します。`,
       memoContent: `【補足メモ】\n▪️客層\n男女比6:4  高校生〜20代中心で\n40代や親子連れもいる。\nエポスのデザイン券面で「ピノキオピー」という同じボーカロイドのプロデューサーの券面が親和性があり、カードのおすすめの際に見せるとその券面でお申し込みする方が多い。前回もその券面が人気でした。`,
-      adminComment: `【運営コメント】\n今回のイベントは「割引訴求」が強いので、\n1) 最初の一言は短く\n2) 「作る→会計」の導線を明確にする\n3) 迷っている方には券面を提示する\nを徹底すると成約率を上げやすくなります。\n\n※「無理に勧めない」判断も重要です。`,
+      adminComment: `今回のイベントは「割引訴求」が強いので、\n1) 最初の一言は短く\n2) 「作る→会計」の導線を明確にする\n3) 迷っている方には券面を提示する\nを徹底すると成約率を上げやすくなります。\n\n※「無理に勧めない」判断も重要です。`,
       adminAuthor: 'まなびー運営',
       adminUpdatedAt: '2026-02-19',
       likes: 100,
@@ -524,7 +532,7 @@ export default function Events() {
         pitchContent: `【引き込み】\n${pitchWords.join('\n')}\n\nイベントの魅力とお客様メリットを短く具体的に伝えます。`,
         cardContent: `【カード説明】\n入会金・年会費は永年無料で、安心してお申し込みいただけます。\n${event.aiSummary}\n\n最後に所要時間と必要な確認事項を伝えて、判断しやすくします。`,
         memoContent: `【補足メモ】\nイベント概要: ${event.description}\n推奨店舗: ${event.stores.join(' / ')}\n注意点: ${(event.essentialKnowledge?.precautions || ['誤案内を避けるため、最新の公式情報を確認']).join(' / ')}`,
-        adminComment: `【運営コメント】\nこのイベントでは「${event.successPatterns[0] || '共感から会話を始める'}」を最優先にしてください。\n次に「${event.successPatterns[1] || '限定メリットを明確にする'}」を添えると、会話が自然につながります。`,
+        adminComment: `このイベントでは「${event.successPatterns[0] || '共感から会話を始める'}」を最優先にしてください。\n次に「${event.successPatterns[1] || '限定メリットを明確にする'}」を添えると、会話が自然につながります。`,
         adminAuthor: 'まなびー運営',
         adminUpdatedAt: '2026-02-19',
         likes: Math.max(event.totalReactions, 1),
@@ -533,7 +541,23 @@ export default function Events() {
     };
 
     const primaryPost = selectedEvent.id === 'deco27' ? decoPost : buildPostFromEvent(selectedEvent);
-    const detailPosts: DetailPost[] = [];
+    const eventDbPosts = dbPosts.filter(p => p.event_title === selectedEvent.name);
+    const detailPosts: DetailPost[] = eventDbPosts.map((p, idx) => ({
+      id: idx + 10000,
+      staffName: '投稿者（ダミー）',
+      eventName: p.event_title || selectedEvent.name,
+      storeName: '',
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      hookWords: [p.situation.slice(0, 60)],
+      pitchWords: [p.approach.slice(0, 60)],
+      cardWords: [(p.result || '').slice(0, 60)],
+      hookContent: p.situation,
+      pitchContent: p.approach,
+      cardContent: p.result || '',
+      memoContent: p.notes || '',
+      likes: p.like_count || 0,
+      helpful: p.helpful_count || 0,
+    }));
     const sortedPosts = [primaryPost, ...detailPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0));
     const topPost = sortedPosts[0];
 
@@ -606,9 +630,7 @@ export default function Events() {
                 </p>
               </div>
             </div>
-            <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 border border-indigo-100">
-              改善ヒント
-            </span>
+
           </div>
           <div className="mt-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
             <p className="text-[13px] whitespace-pre-wrap text-gray-700 leading-relaxed">
@@ -723,14 +745,7 @@ export default function Events() {
                       <p className="font-bold text-gray-500 text-[10px] uppercase mb-2 tracking-widest">Memo / 補足メモ</p>
                       <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.memoContent}</div>
                     </div>
-                    {post.adminComment && (
-                      <div className="bg-indigo-50/60 p-5 rounded-3xl text-sm leading-relaxed border border-indigo-100">
-                        <p className="font-bold text-indigo-600 text-[10px] uppercase mb-2 tracking-widest">
-                          Admin / 運営コメント {post.adminAuthor ? `・ ${post.adminAuthor}` : ''} {post.adminUpdatedAt ? `・ ${post.adminUpdatedAt}` : ''}
-                        </p>
-                        <div className="whitespace-pre-wrap text-gray-700 text-[13px]">{post.adminComment}</div>
-                      </div>
-                    )}
+
                   </div>
                 </details>
               </div>
@@ -738,44 +753,27 @@ export default function Events() {
           })}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <a
-            href="https://docs.google.com/forms/d/1ZVv_aefg2sSfXiKEzNXprRJEb0C0tQiUAH50M_l-RAs/edit?usp=forms_home&ouid=117951192700997366273&ths=true"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-blue-600 text-white rounded-2xl py-4 font-semibold shadow-lg shadow-blue-200 text-center"
-          >
-            投稿
-          </a>
-          <a
-            href="https://docs.google.com/forms/d/1P8QJ34C5Mt6PQq82GSrHhbm3K8mQK-gSNp33HA9at9k/edit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white border border-gray-200 rounded-2xl py-4 font-bold text-gray-700 text-center"
-          >
-            アンケート
-          </a>
-        </div>
-
-        <div className="mt-3 px-1 space-y-1">
-          <p className="text-[11px] text-gray-500">※運営中にお気づきの点があれば、「投稿」からぜひ共有してください（いつでもOK）</p>
-          <p className="text-[11px] text-gray-500">※ご利用後に「アンケート」へのご回答にご協力をお願いいたします</p>
-        </div>
-
         {showHookHelp && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6"
             onClick={() => setShowHookHelp(false)}
           >
-            <div
-              className="relative w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <iframe
-                title="口コミの構造"
-                srcDoc={HOOK_HELP_HTML}
-                className="w-full h-full border-0"
-              />
+            <div className="relative w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+              <div className="h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <iframe
+                  title="口コミの構造"
+                  srcDoc={HOOK_HELP_HTML}
+                  className="w-full h-full border-0"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHookHelp(false)}
+                aria-label="閉じる"
+                className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-gray-900 text-white text-xl leading-none flex items-center justify-center shadow-md hover:bg-gray-800"
+              >
+                ×
+              </button>
             </div>
           </div>
         )}

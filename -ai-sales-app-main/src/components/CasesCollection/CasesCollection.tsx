@@ -1,8 +1,10 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, BookOpen } from 'lucide-react';
 import Events from '../Events/Events';
 import PostModal, { PostFormData } from './PostModal';
 import { HOOK_HELP_HTML } from '../shared/hookHelpHtml';
+import { useAuth } from '../../hooks/useAuth';
+import { createOtherCasePost } from '../../services/casePostService';
 
 interface CasesCollectionProps {
   initialShowHookHelp?: boolean;
@@ -15,6 +17,8 @@ export default function CasesCollection({
 }: CasesCollectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showHookHelp, setShowHookHelp] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!initialShowHookHelp) return;
@@ -22,51 +26,63 @@ export default function CasesCollection({
       setShowHookHelp(true);
       onInitialHookHelpHandled?.();
     }, 2000);
-
     return () => clearTimeout(timer);
   }, [initialShowHookHelp, onInitialHookHelpHandled]);
 
-  const handleSubmitPost = async (_data: PostFormData) => {
+  const handleSubmitPost = async (data: PostFormData) => {
     try {
-      // no-op
+      if (!user || user.id === 'guest') {
+        alert('投稿するにはログインしてください。');
+        return;
+      }
+      const success = await createOtherCasePost({
+        authorId: user.id,
+        title: data.eventName,
+        eventName: data.eventName,
+        hook: data.hook,
+        pitch: data.pitch,
+        card: data.card,
+        memo: data.memo,
+        tags: data.tags,
+      });
+      if (success) {
+        setRefreshKey((k) => k + 1);
+        alert('投稿を保存しました。');
+      } else {
+        alert('投稿の保存に失敗しました。もう一度お試しください。');
+      }
     } catch (e) {
       console.error(e);
-      alert('投稿送信中にエラーが発生しました。');
+      alert('投稿中にエラーが発生しました。');
     }
-  };
-
-  const handleOpenHookHelp = () => {
-    setShowHookHelp(true);
   };
 
   return (
     <div className="space-y-6 w-full max-w-full overflow-x-hidden">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-gray-900">ノウハウ集</h1>
-        <p className="text-gray-600 mt-1">イベント事例の好事例をまとめています</p>
+        <p className="text-gray-600 mt-1">イベントの成功事例をまとめています</p>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex items-center justify-between">
         <button
-          onClick={handleOpenHookHelp}
-          className="inline-flex min-w-[220px] items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-sky-blue text-white font-bold shadow-lg shadow-sky-200 hover:bg-blue-600 transition-colors"
+          onClick={() => setShowHookHelp(true)}
+          className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
-          <BookOpen className="w-5 h-5" />
+          <BookOpen className="w-3.5 h-3.5" />
           口コミの構造
         </button>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex min-w-[220px] items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-vivid-red text-white font-bold shadow-lg shadow-red-200 hover:bg-red-600 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
-          <Plus className="w-5 h-5" />
-          投稿
+          <Plus className="w-3.5 h-3.5" />
+          自分の事例を投稿する
         </button>
       </div>
 
-      <div>
-        <Events />
-      </div>
+      <Events refreshKey={refreshKey} />
 
       <PostModal
         isOpen={isModalOpen}
@@ -76,18 +92,22 @@ export default function CasesCollection({
 
       {showHookHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6">
-          <div className="relative w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-3xl">
+            <div className="h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <iframe
+                title="口コミの構造"
+                srcDoc={HOOK_HELP_HTML}
+                className="w-full h-full border-0"
+              />
+            </div>
             <button
+              type="button"
               onClick={() => setShowHookHelp(false)}
-              className="absolute top-3 right-3 z-10 px-3 py-1.5 rounded-full bg-gray-900 text-white text-xs font-semibold hover:bg-gray-800"
+              aria-label="閉じる"
+              className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-gray-900 text-white text-xl leading-none flex items-center justify-center shadow-md hover:bg-gray-800"
             >
-              閉じる
+              ×
             </button>
-            <iframe
-              title="口コミの構造"
-              srcDoc={HOOK_HELP_HTML}
-              className="w-full h-full border-0"
-            />
           </div>
         </div>
       )}

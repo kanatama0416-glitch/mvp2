@@ -72,7 +72,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       <div
         className={`w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden transition-all duration-700 ${currentSlideData.bgColor} border-4 border-white`}
       >
-        <div className="relative min-h-[600px] flex flex-col">
+        <div className="relative min-h-[600px] flex flex-col" style={{ minHeight: '85vh' }}>
           <div className="absolute top-6 left-12 right-12 h-1.5 bg-black/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-red-500 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(239,68,68,0.5)]"
@@ -189,10 +189,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
                   <ArrowDown className="text-orange-400 mx-auto" />
 
-                  <div className="bg-orange-500 p-4 rounded-2xl shadow-lg transform scale-105">
-                    <div className="text-white font-bold flex items-center justify-center gap-2">
-                      <ShieldCheck /> 実践で使えるノウハウに
-                    </div>
+                  <div className="flex items-center justify-center gap-2 text-orange-500 font-bold text-lg">
+                    <ShieldCheck className="w-6 h-6" /> 実践で使えるノウハウに
                   </div>
                 </div>
               </div>
@@ -212,19 +210,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   <h1 className="text-4xl font-black leading-tight whitespace-pre-line">{currentSlideData.title}</h1>
                   <p className="text-lg text-slate-500">{currentSlideData.description}</p>
                 </div>
-
-                <button
-                  onClick={() => onComplete('cases')}
-                  className="group relative inline-flex items-center gap-3 px-12 py-5 bg-red-500 text-white text-xl font-black rounded-2xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] hover:shadow-[0_15px_30px_rgba(239,68,68,0.4)] active:scale-95"
-                >
-                  ノウハウを見る
-                  <ChevronRight className="group-hover:translate-x-2 transition-transform" />
-                </button>
               </div>
             )}
           </div>
 
-          <div className="px-12 py-10 flex items-center justify-between">
+          <div className="px-12 py-6 mt-auto flex items-center justify-between">
             <button
               onClick={prevSlide}
               className={`flex items-center gap-1 font-bold transition-all ${
@@ -244,7 +234,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <ChevronRight size={20} />
               </button>
             ) : (
-              <div className="w-24" />
+              <button
+                onClick={() => onComplete('cases')}
+                className="flex items-center gap-1 bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all shadow-lg hover:-translate-y-0.5"
+              >
+                <span>ノウハウを見る</span>
+                <ChevronRight size={20} />
+              </button>
             )}
           </div>
         </div>
