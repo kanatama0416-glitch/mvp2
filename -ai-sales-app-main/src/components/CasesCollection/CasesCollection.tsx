@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Plus, BookOpen } from 'lucide-react';
 import Events from '../Events/Events';
 import PostModal, { PostFormData } from './PostModal';
@@ -32,7 +32,7 @@ export default function CasesCollection({
   const handleSubmitPost = async (data: PostFormData) => {
     try {
       if (!user || user.id === 'guest') {
-        alert('投稿するにはログインしてください。');
+        alert('謚慕ｨｿ縺吶ｋ縺ｫ縺ｯ繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・);
         return;
       }
       const success = await createOtherCasePost({
@@ -47,21 +47,21 @@ export default function CasesCollection({
       });
       if (success) {
         setRefreshKey((k) => k + 1);
-        alert('投稿を保存しました。');
+        alert('謚慕ｨｿ繧剃ｿ晏ｭ倥＠縺ｾ縺励◆縲・);
       } else {
-        alert('投稿の保存に失敗しました。もう一度お試しください。');
+        alert('謚慕ｨｿ縺ｮ菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆縲ゅｂ縺・ｸ蠎ｦ縺願ｩｦ縺励￥縺縺輔＞縲・);
       }
     } catch (e) {
       console.error(e);
-      alert('投稿中にエラーが発生しました。');
+      alert('謚慕ｨｿ荳ｭ縺ｫ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆縲・);
     }
   };
 
   return (
     <div className="space-y-6 w-full max-w-full overflow-x-hidden">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">ノウハウ集</h1>
-        <p className="text-gray-600 mt-1">イベントの成功事例をまとめています</p>
+        <h1 className="text-2xl font-bold text-gray-900">繝弱え繝上え髮・/h1>
+        <p className="text-gray-600 mt-1">繧､繝吶Φ繝医・謌仙粥莠倶ｾ九ｒ縺ｾ縺ｨ繧√※縺・∪縺・/p>
       </div>
 
       <div className="flex items-center justify-between">
@@ -70,7 +70,7 @@ export default function CasesCollection({
           className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
           <BookOpen className="w-3.5 h-3.5" />
-          口コミの構造
+          蜿｣繧ｳ繝溘・讒矩
         </button>
 
         <button
@@ -78,7 +78,7 @@ export default function CasesCollection({
           className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
-          自分の事例を投稿する
+          投稿（本来は達人にのみ表示されます）
         </button>
       </div>
 
@@ -95,7 +95,7 @@ export default function CasesCollection({
           <div className="relative w-full max-w-3xl">
             <div className="h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
               <iframe
-                title="口コミの構造"
+                title="蜿｣繧ｳ繝溘・讒矩"
                 srcDoc={HOOK_HELP_HTML}
                 className="w-full h-full border-0"
               />
@@ -103,11 +103,10 @@ export default function CasesCollection({
             <button
               type="button"
               onClick={() => setShowHookHelp(false)}
-              aria-label="閉じる"
+              aria-label="髢峨§繧・
               className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-gray-900 text-white text-xl leading-none flex items-center justify-center shadow-md hover:bg-gray-800"
             >
-              ×
-            </button>
+              ﾃ・            </button>
           </div>
         </div>
       )}
