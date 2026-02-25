@@ -91,18 +91,19 @@ export default function PostModal({ isOpen, onClose, onSubmit }: PostModalProps)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-2xl font-bold text-gray-900">ノウハウを投稿</h2>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
+            <h2 className="text-2xl font-bold text-gray-900">ノウハウを投稿</h2>
+            <button
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <button
             type="button"
             onClick={() => setShowHookHelp(true)}
@@ -242,42 +243,44 @@ export default function PostModal({ isOpen, onClose, onSubmit }: PostModalProps)
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-            >
-              キャンセル
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-vivid-red text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
-            >
-              投稿する
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                キャンセル
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-vivid-red text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
+                投稿する
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       {showHookHelp && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-3 py-6">
-          <div className="relative w-full max-w-3xl">
-            <div className="h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <iframe
-                title="口コミの構造"
-                srcDoc={HOOK_HELP_HTML}
-                className="w-full h-full border-0"
-              />
+          <div className="w-full max-w-3xl h-[80vh] sm:h-[86vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+              <span className="text-sm font-medium text-gray-700">口コミの構造</span>
+              <button
+                type="button"
+                onClick={() => setShowHookHelp(false)}
+                aria-label="閉じる"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowHookHelp(false)}
-              aria-label="閉じる"
-              className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-gray-900 text-white text-xl leading-none flex items-center justify-center shadow-md hover:bg-gray-800"
-            >
-              ×
-            </button>
+            <iframe
+              title="口コミの構造"
+              srcDoc={HOOK_HELP_HTML}
+              className="w-full h-[calc(100%-57px)] border-0"
+            />
           </div>
         </div>
       )}

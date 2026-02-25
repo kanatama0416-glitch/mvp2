@@ -758,22 +758,26 @@ export default function Events({ refreshKey = 0 }: { refreshKey?: number }) {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-6"
             onClick={() => setShowHookHelp(false)}
           >
-            <div className="relative w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
-              <div className="h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
-                <iframe
-                  title="口コミの構造"
-                  srcDoc={HOOK_HELP_HTML}
-                  className="w-full h-full border-0"
-                />
+            <div
+              className="w-full max-w-3xl h-[80vh] sm:h-[86vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+                <span className="text-sm font-medium text-gray-700">口コミの構造</span>
+                <button
+                  type="button"
+                  onClick={() => setShowHookHelp(false)}
+                  aria-label="閉じる"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowHookHelp(false)}
-                aria-label="閉じる"
-                className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-gray-900 text-white text-xl leading-none flex items-center justify-center shadow-md hover:bg-gray-800"
-              >
-                ×
-              </button>
+              <iframe
+                title="口コミの構造"
+                srcDoc={HOOK_HELP_HTML}
+                className="w-full h-[calc(100%-57px)] border-0"
+              />
             </div>
           </div>
         )}

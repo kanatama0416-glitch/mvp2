@@ -94,7 +94,7 @@ export default function CasesCollection({
 
       {showHookHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3 py-4 sm:px-4 sm:py-6">
-          <div className="w-full max-w-3xl h-[72vh] sm:h-[78vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="w-full max-w-3xl h-[80vh] sm:h-[86vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
               <span className="text-sm font-medium text-gray-700">口コミの構造</span>
               <button
