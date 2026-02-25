@@ -25,7 +25,7 @@ export default function MobileMenu({ activeTab, onTabChange }: MobileMenuProps) 
               onClick={() => onTabChange(item.id)}
               className={`flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 transition-colors ${
                 isActive
-                  ? 'text-vivid-red bg-red-50'
+                  ? 'text-blue-600 bg-blue-50'
                   : 'text-gray-500 hover:bg-gray-50'
               }`}
             >

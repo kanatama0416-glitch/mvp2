@@ -26,11 +26,11 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   onClick={() => onTabChange(item.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                     isActive
-                      ? 'bg-red-50 text-vivid-red border border-red-200'
+                      ? 'bg-blue-50 text-blue-600 border border-blue-200'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-vivid-red' : 'text-gray-400'}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
                   <span className="font-medium">{item.label}</span>
                 </button>
               </li>
