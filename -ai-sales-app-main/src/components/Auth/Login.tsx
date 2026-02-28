@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { AlertCircle, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<boolean>;
@@ -35,9 +35,11 @@ export default function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-light-gray to-sky-blue/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-vivid-red rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-10 h-10 text-white" />
-          </div>
+          <img
+            src={`${import.meta.env.BASE_URL}app-icon.png?v=3`}
+            alt="まなびー アイコン"
+            className="w-20 h-20 rounded-2xl mx-auto mb-4 object-cover"
+          />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">まなびー</h1>
         </div>
 
