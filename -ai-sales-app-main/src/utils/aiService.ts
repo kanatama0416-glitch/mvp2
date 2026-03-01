@@ -49,7 +49,7 @@ export class AIService {
           'X-Title': 'AI Sales Skill Teacher',
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-chat',
+          model: 'openai/gpt-4o-mini',
           messages,
           max_tokens: mode === 'consultation' ? 150 : 200,
           temperature: 0.8,
