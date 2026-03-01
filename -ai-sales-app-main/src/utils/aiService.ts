@@ -4,7 +4,7 @@ type Role = 'system' | 'user' | 'assistant';
 
 /**
  * 相談モード専用AIサービス
- * - モデル: openai/gpt-4o-mini（変更しない）
+ * - モデル: openai/gpt-4o-mini
  * - 事例集ナレッジ: buildCaseKnowledgeText() を system prompt に埋め込む（変更しない）
  * - UI側の履歴(context)は role 付き推奨。互換のため string[] も受ける（最後にある変換ロジック参照）
  */
