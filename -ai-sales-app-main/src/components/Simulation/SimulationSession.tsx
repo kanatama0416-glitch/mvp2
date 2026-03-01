@@ -101,7 +101,7 @@ export default function SimulationSession({ scenario, mode, onExit }: Simulation
     setInputText('');
     setIsLoading(true);
 
-    // AIの返答（OpenRouter経由でDeepSeek）
+  
     try {
       // 会話履歴からコンテキストを構築（初期メッセージと今回のユーザーメッセージを除く）
       const context = updatedMessages
